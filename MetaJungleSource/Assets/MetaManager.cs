@@ -19,6 +19,7 @@ public class MetaManager : MonoBehaviour
     public static Photon.Pun.PhotonView fighterView;
     public static bool isFighting = false;
     public static bool isAtttacking = false;
+    public static Photon.Realtime.Player fightReqPlayer;
 
     private void Awake()
     {

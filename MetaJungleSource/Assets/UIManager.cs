@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-
+using Photon.Pun;
 public class UIManager : MonoBehaviour
 {
     public static UIManager insta;
@@ -34,7 +34,7 @@ public class UIManager : MonoBehaviour
     }
 
     public void GetName() {
-        if (nameInput.text.Length > 0) username = nameInput.text;
+        if (nameInput.text.Length > 0 &&  !nameInput.text.Contains("Enter")) username = nameInput.text;
         else username = "Player_" + Random.Range(11111, 99999);
 
         usernameUI.SetActive(false);
@@ -75,6 +75,14 @@ public class UIManager : MonoBehaviour
         MetaManager.insta.myPlayer.GetComponent<MyCharacter>().RequestFightAction(_accept);
         FightRequestUI.SetActive(false);
         Debug.Log("Fight Action " + _accept);
+        PhotonView photonView = PhotonView.Get(this);
+        photonView.RPC("UpdateHealthMe", RpcTarget.All, PhotonNetwork.LocalPlayer.UserId);
     }
+    [PunRPC]
+    void UpdateHealthMe(string _uid)
+    {
+        Debug.Log("CheckID " + _uid);
+    }
+
     #endregion
 }
