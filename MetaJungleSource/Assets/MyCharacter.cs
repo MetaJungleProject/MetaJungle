@@ -376,8 +376,28 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
             }
 
         }
+    }
 
+    public override void OnPlayerLeftRoom(Player otherPlayer)
+    {
+        //base.OnPlayerLeftRoom(otherPlayer);
 
+        if (pview.IsMine) {
+            if (otherPlayer.UserId.Equals(MetaManager._fighterid))
+            {
+                if ((bool)otherPlayer.CustomProperties["isfighting"] && healthUI.activeSelf)
+                {
+                    AudioManager.insta.playSound(6);
+
+                    Debug.Log("Player left");
+                    showHealthBar(false);
+                    ResetFight();
+                    ResetWeapon();
+
+                }
+
+            }
+        }
     }
 
 
