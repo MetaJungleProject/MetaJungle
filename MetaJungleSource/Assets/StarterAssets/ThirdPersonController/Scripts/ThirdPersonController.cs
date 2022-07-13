@@ -158,7 +158,7 @@ namespace StarterAssets
 
             JumpAndGravity();
             GroundedCheck();
-           if (!_input.attack) Move();
+           Move();
         }
 
         private void LateUpdate()

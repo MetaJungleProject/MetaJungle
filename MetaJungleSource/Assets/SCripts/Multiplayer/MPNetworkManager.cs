@@ -170,8 +170,6 @@ public class MPNetworkManager : MonoBehaviourPunCallbacks
     }
 
 
-    [SerializeField] PhotonView pView;
-
     #endregion
 
 

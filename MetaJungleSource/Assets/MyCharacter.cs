@@ -17,6 +17,7 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
     [SerializeField] GameObject vCamTarget;
     [SerializeField] PlayerInput _playerInput;
     [SerializeField] StarterAssetsInputs _inputs;
+    [SerializeField] StarterAssets.StarterAssets _customInput;
 
     [SerializeField] GameObject[] myPlayers;
     [SerializeField] TMP_Text usernameText;
@@ -26,6 +27,7 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
 
     [SerializeField] GameObject meetUI;
 
+    [SerializeField] GameObject WeaponCollider;
 
 
 
@@ -35,6 +37,8 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
     [SerializeField] GameObject weaponObj;
     [SerializeField] GameObject[] weaponParent;
     [SerializeField] GameObject[] weapons;
+    Vector3 weaponLastPoz;
+    Quaternion weaponLastRot;
 
 
     //ui manger
@@ -42,11 +46,18 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
     [SerializeField] Image healthbarIng;
     //int playerHealth = 100;
 
+    private void Awake()
+    {
+        WeaponCollider.SetActive(false);
+    }
     private void Start()
     {
 
         pview = GetComponent<PhotonView>();
         _inputs = GetComponentInParent<StarterAssetsInputs>();
+        _customInput = new StarterAssets.StarterAssets();
+        _customInput.Player.Enable();
+
         if (pview.IsMine)
         {
             MetaManager.insta.myPlayer = gameObject;
@@ -94,44 +105,53 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
 
     private void Update()
     {
-        if (tController.Grounded && (mController.velocity.x != 0 || mController.velocity.z != 0))
-        {
-            myAnim.SetBool("walk", true);
-        }
-        else
-        {
-            myAnim.SetBool("walk", false);
-        }
-
-        if (_inputs.attack && tController.Grounded)
-        {
-            myAnim.SetBool("attack", true);
-            StartCoroutine(waitForEnd(myAnim.GetCurrentAnimatorStateInfo(0).length));
-            
-        }
-
-       
-            
-
         if (pview.IsMine)
         {
-            MetaManager.isAtttacking = _inputs.attack;
+            if (!myAnim.GetBool("attack"))
+            {
+                if (tController.Grounded && (mController.velocity.x != 0 || mController.velocity.z != 0))
+                {
+                    myAnim.SetBool("walk", true);
+                }
+                else
+                {
+                    myAnim.SetBool("walk", false);
+                }
+            }
+
+            if (_customInput.Player.Attack.triggered && tController.Grounded && MetaManager.isFighting)
+            {
+                myAnim.SetBool("attack", true);
+                StartCoroutine(waitForEnd(myAnim.GetCurrentAnimatorStateInfo(0).length));
+                AudioManager.insta.playSound(8);
+                WeaponCollider.SetActive(true);
+                Debug.Log("Attack Collider");
+            }
+            else
+            {
+                WeaponCollider.SetActive(false);
+            }
+
+            MetaManager.isAtttacking = _customInput.Player.Attack.triggered;
+
+
+
         }
-        if (!tController.Grounded)
-        _inputs.attack = false;
+
+        //if (!tController.Grounded)
+        //_inputs.attack = false;
 
     }
 
     IEnumerator waitForEnd(float _time, int _action = 0)
     {
-        
-        //yield on a new YieldInstruction that waits for 5 seconds.
+
         yield return new WaitForSeconds(_time);
         AnimationOver();
     }
     public void AnimationOver()
     {
-        _inputs.attack = false;
+        // _inputs.attack = false;
         myAnim.SetBool("attack", false);
     }
 
@@ -179,13 +199,14 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
         _waitToReattack = true;
         Debug.Log("Attacked " + pview.Owner);
         // UpdateHealth();
-        AudioManager.insta.playSound(8);
+        AudioManager.insta.playSound(playerNo);
         pview.RPC("UpdateHealth", RpcTarget.All, pview.Owner.UserId);
         yield return new WaitForSeconds(0.2f);
         _waitToReattack = false;
     }
 
-    void ResetFight() {
+    void ResetFight()
+    {
         if (pview.IsMine)
         {
             var hash = PhotonNetwork.LocalPlayer.CustomProperties;
@@ -193,7 +214,7 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
             hash["health"] = healthbarIng.fillAmount;
             hash["isfighting"] = false;
             PhotonNetwork.LocalPlayer.SetCustomProperties(hash);
-            AudioManager.insta.playSound(7);
+
         }
     }
     private void OnTriggerExit(Collider other)
@@ -219,6 +240,8 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
         if (pview.IsMine) MetaManager.isFighting = true;
         weaponObj.SetActive(true);
         showHealthBar(true);
+        weaponLastPoz = weapons[currentWeapon].transform.localPosition;
+        weaponLastRot = weapons[currentWeapon].transform.localRotation;
         weapons[currentWeapon].SetActive(true);
         weapons[currentWeapon].transform.SetParent(weaponParent[playerNo].transform);
     }
@@ -227,8 +250,13 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
     {
         if (pview.IsMine) MetaManager.isFighting = false;
         weapons[currentWeapon].transform.SetParent(weaponObj.transform);
+        weapons[currentWeapon].transform.localPosition = weaponLastPoz;
+        weapons[currentWeapon].transform.localRotation = weaponLastRot;
+
         weapons[currentWeapon].SetActive(false);
         weaponObj.SetActive(false);
+
+
     }
 
     #endregion
@@ -311,22 +339,24 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
             if (healthbarIng.fillAmount > 0.1)
             {
                 healthbarIng.fillAmount -= 0.1f;
-                if (pview.IsMine) AudioManager.insta.playSound(playerNo);
+                if (pview.IsMine)
+                {
+                    AudioManager.insta.playSound(playerNo);
+                    var hash = PhotonNetwork.LocalPlayer.CustomProperties;
+                    hash["health"] = healthbarIng.fillAmount;
+                    PhotonNetwork.LocalPlayer.SetCustomProperties(hash);
+                }
             }
             else
             {
                 showHealthBar(false);
                 ResetFight();
                 ResetWeapon();
-                
+
+                if (pview.IsMine) AudioManager.insta.playSound(7);
             }
 
-            if (pview.IsMine)
-            {
-                var hash = PhotonNetwork.LocalPlayer.CustomProperties;
-                hash["health"] = healthbarIng.fillAmount;
-                PhotonNetwork.LocalPlayer.SetCustomProperties(hash);
-            }
+           
         }
     }
     #endregion
@@ -334,20 +364,23 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
 
     public override void OnPlayerPropertiesUpdate(Player targetPlayer, ExitGames.Client.Photon.Hashtable changedProps)
     {
-       // base.OnPlayerPropertiesUpdate(targetPlayer, changedProps);
-       
-            if (targetPlayer.UserId.Equals(MetaManager._fighterid))
-            {
-                if (!(bool)targetPlayer.CustomProperties["isfighting"] && healthUI.activeSelf)
-                {
-                    Debug.Log("Updated Propertied");
-                    showHealthBar(false);
-                    ResetFight();
-                    ResetWeapon();
-                }
+        // base.OnPlayerPropertiesUpdate(targetPlayer, changedProps);
 
+        if (targetPlayer.UserId.Equals(MetaManager._fighterid))
+        {
+            if (!(bool)targetPlayer.CustomProperties["isfighting"] && healthUI.activeSelf)
+            {
+                if ((bool)pview.Owner.CustomProperties["isfighting"] && pview.IsMine) AudioManager.insta.playSound(6);
+
+                Debug.Log("Updated Propertied");
+                showHealthBar(false);
+                ResetFight();
+                ResetWeapon();
+             
             }
-        
+
+        }
+
 
     }
 
@@ -409,7 +442,7 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
                 }
             }
 
-     
+
         }
     }
 }
