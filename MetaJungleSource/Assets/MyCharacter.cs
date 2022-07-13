@@ -146,7 +146,7 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
     IEnumerator waitForEnd(float _time, int _action = 0)
     {
 
-        yield return new WaitForSeconds(0.30f);
+        yield return new WaitForSeconds(0.31f);
         myAnim.SetBool("attack", false);
     }
    
@@ -346,8 +346,9 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
             else
             {
                 showHealthBar(false);
-                ResetFight();
+               
                 ResetWeapon();
+                ResetFight();
 
                 if (pview.IsMine) AudioManager.insta.playSound(7);
             }
@@ -387,7 +388,7 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
             {
                 if ((bool)otherPlayer.CustomProperties["isfighting"] && healthUI.activeSelf)
                 {
-                    AudioManager.insta.playSound(6);
+                    AudioManager.insta.playSound(9);
 
                     Debug.Log("Player left");
                     showHealthBar(false);
