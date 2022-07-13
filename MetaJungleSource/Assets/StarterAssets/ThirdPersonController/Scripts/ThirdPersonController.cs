@@ -158,7 +158,7 @@ namespace StarterAssets
 
             JumpAndGravity();
             GroundedCheck();
-           Move();
+           if(!MetaManager.isAtttacking) Move();
         }
 
         private void LateUpdate()

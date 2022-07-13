@@ -119,7 +119,7 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
                 }
             }
 
-            if (_customInput.Player.Attack.triggered && tController.Grounded && MetaManager.isFighting)
+            if (_customInput.Player.Attack.triggered && tController.Grounded && MetaManager.isFighting && !myAnim.GetBool("attack"))
             {
                 myAnim.SetBool("attack", true);
                 StartCoroutine(waitForEnd(myAnim.GetCurrentAnimatorStateInfo(0).length));
@@ -132,7 +132,7 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
                 WeaponCollider.SetActive(false);
             }
 
-            MetaManager.isAtttacking = _customInput.Player.Attack.triggered;
+            MetaManager.isAtttacking = myAnim.GetBool("attack");
 
 
 
@@ -146,14 +146,10 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
     IEnumerator waitForEnd(float _time, int _action = 0)
     {
 
-        yield return new WaitForSeconds(_time);
-        AnimationOver();
-    }
-    public void AnimationOver()
-    {
-        // _inputs.attack = false;
+        yield return new WaitForSeconds(0.30f);
         myAnim.SetBool("attack", false);
     }
+   
 
     bool _waitToReattack = false;
     private void OnTriggerEnter(Collider other)
@@ -243,15 +239,15 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
         weaponLastPoz = weapons[currentWeapon].transform.localPosition;
         weaponLastRot = weapons[currentWeapon].transform.localRotation;
         weapons[currentWeapon].SetActive(true);
-        weapons[currentWeapon].transform.SetParent(weaponParent[playerNo].transform);
+        weapons[currentWeapon].transform.parent = weaponParent[playerNo].transform;
     }
 
     void ResetWeapon()
     {
         if (pview.IsMine) MetaManager.isFighting = false;
-        weapons[currentWeapon].transform.SetParent(weaponObj.transform);
-        weapons[currentWeapon].transform.localPosition = weaponLastPoz;
-        weapons[currentWeapon].transform.localRotation = weaponLastRot;
+        weapons[currentWeapon].transform.parent = weaponObj.transform;
+       // weapons[currentWeapon].transform.localPosition = weaponLastPoz;
+        //weapons[currentWeapon].transform.localRotation = weaponLastRot;
 
         weapons[currentWeapon].SetActive(false);
         weaponObj.SetActive(false);
