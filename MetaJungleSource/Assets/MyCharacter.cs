@@ -269,6 +269,7 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
 
         Debug.Log("RequestFight My " + MetaManager.insta.myPlayer.GetComponent<PhotonView>().Owner.UserId + " | figher " + MetaManager._fighterid);
 
+        UIManager.insta.UpdateStatus("Fight request sent to\n" + pview.Owner.NickName);
 
     }
     [PunRPC]
