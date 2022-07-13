@@ -1,9 +1,8 @@
 using Photon.Pun;
 using Photon.Realtime;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using Hashtable = ExitGames.Client.Photon.Hashtable;
+
 public class MPNetworkManager : MonoBehaviourPunCallbacks
 {
     public static MPNetworkManager insta;
@@ -21,7 +20,7 @@ public class MPNetworkManager : MonoBehaviourPunCallbacks
 
     private void Start()
     {
-       // OnConnectedToServer();
+        // OnConnectedToServer();
     }
 
     #region CommonStuff
@@ -43,9 +42,9 @@ public class MPNetworkManager : MonoBehaviourPunCallbacks
         Debug.Log("OnDisconnected " + cause);
 
     }
-  
 
-   public override void OnConnectedToMaster()
+
+    public override void OnConnectedToMaster()
     {
         Debug.Log("OnConnectedToMaster");
         base.OnConnectedToMaster();
@@ -92,6 +91,7 @@ public class MPNetworkManager : MonoBehaviourPunCallbacks
         Hashtable hash = new Hashtable();
         hash.Add("char_no", UIManager.usergender);
         hash.Add("isfighting", false);
+        hash.Add("health", 1);
         PhotonNetwork.LocalPlayer.SetCustomProperties(hash);
 
         roomIndex = PlayerPrefs.GetInt("musePoz", 0); //room index on network
@@ -167,11 +167,10 @@ public class MPNetworkManager : MonoBehaviourPunCallbacks
     {
         Debug.Log("OnPlayerLeftRoom");
         base.OnPlayerLeftRoom(otherPlayer);
-
-       
-
     }
-  
+
+
+    [SerializeField] PhotonView pView;
 
     #endregion
 

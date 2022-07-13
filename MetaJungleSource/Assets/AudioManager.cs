@@ -26,7 +26,7 @@ public class AudioManager : MonoBehaviour
     }
 
     public void playSound(int _no, float _vol = 1f) {
-        if (soundSource.isPlaying) soundSource.Stop();
+        //if (soundSource.isPlaying) soundSource.Stop();
         soundSource.PlayOneShot(audioClips[_no], _vol);
     }
    

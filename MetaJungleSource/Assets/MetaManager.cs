@@ -15,11 +15,13 @@ public class MetaManager : MonoBehaviour
     public GameObject myPlayer;
 
 
-    public static GameObject fightPlayer;
-    public static Photon.Pun.PhotonView fighterView;
+    //public static GameObject fightPlayer;
+    //public static Photon.Pun.PhotonView fighterView;
     public static bool isFighting = false;
     public static bool isAtttacking = false;
     public static Photon.Realtime.Player fightReqPlayer;
+
+    public static string _fighterid;
 
     private void Awake()
     {

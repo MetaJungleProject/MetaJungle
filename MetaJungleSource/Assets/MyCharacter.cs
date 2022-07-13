@@ -8,7 +8,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
-public class MyCharacter : MonoBehaviour, IOnEventCallback
+public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
 {
     [SerializeField] ThirdPersonController tController;
 
@@ -67,7 +67,13 @@ public class MyCharacter : MonoBehaviour, IOnEventCallback
         myAnim = myPlayers[playerNo].GetComponent<Animator>();
         usernameText.text = pview.Owner.NickName;
 
+        if ((bool)pview.Owner.CustomProperties["isfighting"])
+        {
+            SelectWeapon();
+            showHealthBar(true);
+            healthbarIng.fillAmount = float.Parse(pview.Owner.CustomProperties["health"].ToString());
 
+        }
     }
 
     private void LateUpdate()
@@ -101,21 +107,24 @@ public class MyCharacter : MonoBehaviour, IOnEventCallback
         {
             myAnim.SetBool("attack", true);
             StartCoroutine(waitForEnd(myAnim.GetCurrentAnimatorStateInfo(0).length));
+            
         }
 
-        if (!tController.Grounded)
-            _inputs.attack = false;
+       
+            
 
         if (pview.IsMine)
         {
             MetaManager.isAtttacking = _inputs.attack;
         }
+        if (!tController.Grounded)
+        _inputs.attack = false;
 
     }
 
     IEnumerator waitForEnd(float _time, int _action = 0)
     {
-
+        
         //yield on a new YieldInstruction that waits for 5 seconds.
         yield return new WaitForSeconds(_time);
         AnimationOver();
@@ -144,12 +153,21 @@ public class MyCharacter : MonoBehaviour, IOnEventCallback
         {
             if (!pview.IsMine && (bool)pview.Owner.CustomProperties["isfighting"])
             {
+
                 if (other.CompareTag("Weapon0") && MetaManager.isAtttacking)
                 {
                     if (!_waitToReattack)
                     {
-                        StartCoroutine(waitToReattack());
+                        Debug.Log("Fight My " + pview.Owner.UserId + " | figher " + MetaManager._fighterid);
+
+                        if (MetaManager._fighterid.Equals(pview.Owner.UserId))
+                        {
+                            StartCoroutine(waitToReattack());
+                        }
+
+
                     }
+
                 }
             }
         }
@@ -161,12 +179,23 @@ public class MyCharacter : MonoBehaviour, IOnEventCallback
         _waitToReattack = true;
         Debug.Log("Attacked " + pview.Owner);
         // UpdateHealth();
+        AudioManager.insta.playSound(8);
         pview.RPC("UpdateHealth", RpcTarget.All, pview.Owner.UserId);
-        AudioManager.insta.playSound(playerNo);
         yield return new WaitForSeconds(0.2f);
         _waitToReattack = false;
     }
 
+    void ResetFight() {
+        if (pview.IsMine)
+        {
+            var hash = PhotonNetwork.LocalPlayer.CustomProperties;
+            healthbarIng.fillAmount = 1;
+            hash["health"] = healthbarIng.fillAmount;
+            hash["isfighting"] = false;
+            PhotonNetwork.LocalPlayer.SetCustomProperties(hash);
+            AudioManager.insta.playSound(7);
+        }
+    }
     private void OnTriggerExit(Collider other)
     {
         if (MetaManager.isFighting) return;
@@ -196,7 +225,7 @@ public class MyCharacter : MonoBehaviour, IOnEventCallback
 
     void ResetWeapon()
     {
-
+        if (pview.IsMine) MetaManager.isFighting = false;
         weapons[currentWeapon].transform.SetParent(weaponObj.transform);
         weapons[currentWeapon].SetActive(false);
         weaponObj.SetActive(false);
@@ -208,10 +237,15 @@ public class MyCharacter : MonoBehaviour, IOnEventCallback
     public void RequestFight()
     {
         Debug.Log("RequestFight" + pview.Owner.NickName);
-
+        Debug.Log("RequestFightID" + pview.Owner.UserId);
+        MetaManager._fighterid = pview.Owner.UserId;
         AudioManager.insta.playSound(2);
         // MetaManager.insta.myPlayer.GetComponent<MyCharacter>().pview.RPC("RequestFightRPC", RpcTarget.All, pview.Owner.UserId);
         pview.RPC("RequestFightRPC", RpcTarget.All, pview.Owner.UserId);
+
+        Debug.Log("RequestFight My " + MetaManager.insta.myPlayer.GetComponent<PhotonView>().Owner.UserId + " | figher " + MetaManager._fighterid);
+
+
     }
     [PunRPC]
     void RequestFightRPC(string _uid, PhotonMessageInfo info)
@@ -227,11 +261,15 @@ public class MyCharacter : MonoBehaviour, IOnEventCallback
 
                 Debug.LogFormat("Info: {0} {1}", info.Sender, info.photonView.IsMine);
 
+                MetaManager._fighterid = info.Sender.UserId;
                 MetaManager.fightReqPlayer = info.Sender;
-                MetaManager.fighterView = info.photonView;
-                MetaManager.fightPlayer = info.photonView.gameObject;
+                //MetaManager.fighterView = info.photonView;
+                //MetaManager.fightPlayer = info.photonView.gameObject;
                 UIManager.insta.FightReq(info.Sender.ToString());
                 AudioManager.insta.playSound(3);
+
+                Debug.Log("RequestFightRPC My " + MetaManager.insta.myPlayer.GetComponent<PhotonView>().Owner.UserId + " | figher " + MetaManager._fighterid);
+
             }
         }
     }
@@ -240,75 +278,12 @@ public class MyCharacter : MonoBehaviour, IOnEventCallback
     {
         Debug.Log("RequestFightAction" + pview.Owner.NickName + " | " + pview.IsMine);
 
-        //MetaManager.fighterView.RPC("RequestFightActionRPC", MetaManager.fightReqPlayer, _action);
-
-        //pview.RPC("RequestFightActionRPC", RpcTarget.All, MetaManager.fightReqPlayer.UserId, PhotonNetwork.LocalPlayer.UserId, _action);
 
         SendFightAction(_action, MetaManager.fightReqPlayer.UserId, PhotonNetwork.LocalPlayer.UserId);
         MetaManager.fightReqPlayer = null;
-        /*       if (_action)
-               {
-                   SelectWeapon();
-                   //MetaManager.fightPlayer.GetComponent<MyCharacter>().SelectWeapon();
-
-                   var hash = PhotonNetwork.LocalPlayer.CustomProperties;
-                   hash["isfighting"] = true;
-                   PhotonNetwork.LocalPlayer.SetCustomProperties(hash);
-
-               }*/
-    }
-
-    [PunRPC]
-    public void RequestFightActionRPC(string _p1uid, string _p2uid, bool _action, PhotonMessageInfo info)
-    {
-
-        Debug.Log(_p2uid + " uid " + _p1uid);
-
-        if (pview.Owner.UserId.Equals(_p1uid))
-        {
-            if (_action)
-            {
-                Debug.Log(info.Sender + " is ready to fight " + pview.IsMine);
-                SelectWeapon();
-                if (pview.IsMine)
-                {
-                    var hash = PhotonNetwork.LocalPlayer.CustomProperties;
-                    hash["isfighting"] = true;
-                    PhotonNetwork.LocalPlayer.SetCustomProperties(hash);
-                }
-
-                AudioManager.insta.playSound(4);
-            }
-            else
-            {
-                Debug.Log(info.Sender + " rejected fight");
-                AudioManager.insta.playSound(5);
-            }
-        }
-
-        if (pview.Owner.UserId.Equals(_p2uid))
-        {
-            if (_action)
-            {
-                Debug.Log(info.Sender + " is ready to fight " + pview.IsMine);
-                SelectWeapon();
-                if (pview.IsMine)
-                {
-                    var hash = PhotonNetwork.LocalPlayer.CustomProperties;
-                    hash["isfighting"] = true;
-                    PhotonNetwork.LocalPlayer.SetCustomProperties(hash);
-                }
-
-                AudioManager.insta.playSound(4);
-            }
-            else
-            {
-                Debug.Log(info.Sender + " rejected fight");
-                AudioManager.insta.playSound(5);
-            }
-        }
 
     }
+
 
 
 
@@ -333,17 +308,48 @@ public class MyCharacter : MonoBehaviour, IOnEventCallback
     {
         if (pview.Owner.UserId.Equals(_uid))
         {
-            if (healthbarIng.fillAmount > 0)
+            if (healthbarIng.fillAmount > 0.1)
             {
                 healthbarIng.fillAmount -= 0.1f;
+                if (pview.IsMine) AudioManager.insta.playSound(playerNo);
             }
             else
             {
                 showHealthBar(false);
+                ResetFight();
+                ResetWeapon();
+                
+            }
+
+            if (pview.IsMine)
+            {
+                var hash = PhotonNetwork.LocalPlayer.CustomProperties;
+                hash["health"] = healthbarIng.fillAmount;
+                PhotonNetwork.LocalPlayer.SetCustomProperties(hash);
             }
         }
     }
     #endregion
+
+
+    public override void OnPlayerPropertiesUpdate(Player targetPlayer, ExitGames.Client.Photon.Hashtable changedProps)
+    {
+       // base.OnPlayerPropertiesUpdate(targetPlayer, changedProps);
+       
+            if (targetPlayer.UserId.Equals(MetaManager._fighterid))
+            {
+                if (!(bool)targetPlayer.CustomProperties["isfighting"] && healthUI.activeSelf)
+                {
+                    Debug.Log("Updated Propertied");
+                    showHealthBar(false);
+                    ResetFight();
+                    ResetWeapon();
+                }
+
+            }
+        
+
+    }
 
 
     // If you have multiple custom events, it is recommended to define them in the used class
@@ -366,23 +372,25 @@ public class MyCharacter : MonoBehaviour, IOnEventCallback
         PhotonNetwork.RemoveCallbackTarget(this);
     }
 
+    //
     public void OnEvent(EventData photonEvent)
     {
 
         byte eventCode = photonEvent.Code;
         if (eventCode == FightEventCode)
         {
+            if ((bool)pview.Owner.CustomProperties["isfighting"]) return;
+
             object[] data = (object[])photonEvent.CustomData;
             bool _action = (bool)data[0];
             for (int i = 1; i < data.Length; i++)
             {
-
                 if (pview.Owner.UserId.Equals((string)data[i]))
                 {
                     if (_action)
                     {
                         //Debug.Log(info.Sender + " is ready to fight " + pview.IsMine);
-                        SelectWeapon();
+
 
                         if (pview.IsMine)
                         {
@@ -390,6 +398,7 @@ public class MyCharacter : MonoBehaviour, IOnEventCallback
                             hash["isfighting"] = true;
                             PhotonNetwork.LocalPlayer.SetCustomProperties(hash);
                         }
+                        SelectWeapon();
                         AudioManager.insta.playSound(4);
                     }
                     else
@@ -400,6 +409,7 @@ public class MyCharacter : MonoBehaviour, IOnEventCallback
                 }
             }
 
+     
         }
     }
 }
