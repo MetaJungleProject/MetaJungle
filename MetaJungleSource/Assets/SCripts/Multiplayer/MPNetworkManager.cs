@@ -162,11 +162,14 @@ public class MPNetworkManager : MonoBehaviourPunCallbacks
         Debug.Log("OnPlayerEnteredRoom");
         base.OnPlayerEnteredRoom(newPlayer);
 
+        UIManager.insta.UpdateStatus(newPlayer.NickName + " Joined");
+
     }
     public override void OnPlayerLeftRoom(Player otherPlayer)
     {
         Debug.Log("OnPlayerLeftRoom");
         base.OnPlayerLeftRoom(otherPlayer);
+        UIManager.insta.UpdateStatus(otherPlayer.NickName + " Left");
     }
 
 

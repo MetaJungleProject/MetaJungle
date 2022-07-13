@@ -11,10 +11,12 @@ public class UIManager : MonoBehaviour
     [SerializeField] TMP_InputField nameInput;
     [SerializeField] Button[] gender;
 
+    [SerializeField] TMP_Text statusText;
 
     // fight manager
     [SerializeField] GameObject FightRequestUI;
     [SerializeField] TMP_Text fightRequestText;
+
 
     public static string username;
     public static int usergender;
@@ -30,7 +32,18 @@ public class UIManager : MonoBehaviour
         usernameUI.SetActive(true);
         gender[0].interactable = false;
         gender[1].interactable = true;
+        statusText.text = "";
 
+    }
+
+    public void UpdateStatus(string _msg) {
+        statusText.text = _msg;
+        StartCoroutine(ResetUpdateText());
+    }
+
+    IEnumerator ResetUpdateText() {
+        yield return new WaitForSeconds(1);
+        statusText.text = "";
     }
 
     public void GetName() {

@@ -394,7 +394,6 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
                     showHealthBar(false);
                     ResetFight();
                     ResetWeapon();
-
                 }
 
             }
