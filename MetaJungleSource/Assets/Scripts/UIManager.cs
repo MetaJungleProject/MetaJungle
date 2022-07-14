@@ -8,6 +8,8 @@ public class UIManager : MonoBehaviour
 {
     public static UIManager insta;
     [SerializeField] GameObject usernameUI;
+    [SerializeField] TMP_Text usernameText;
+
     [SerializeField] TMP_InputField nameInput;
     [SerializeField] Button[] gender;
 
@@ -34,6 +36,15 @@ public class UIManager : MonoBehaviour
         gender[1].interactable = true;
         statusText.text = "";
 
+    }
+
+    private void Update()
+    {
+        
+    }
+
+    public void UpdateUserName(string _name, string _ethad) {
+        usernameText.text = "Hi, " + _name + "\n Your crypto address is : " + _ethad;
     }
 
     public void UpdateStatus(string _msg) {
@@ -69,6 +80,7 @@ public class UIManager : MonoBehaviour
         }
 
         usergender = _no;
+        MetaManager.insta.userData.characterNo = _no;
     }
 
 

@@ -5,6 +5,7 @@ using MoralisUnity.Platform.Queries;
 using StarterAssets;
 using System.Collections.Generic;
 using UnityEngine;
+using Newtonsoft.Json;
 
 public class MetaManager : MonoBehaviour
 {
@@ -26,6 +27,7 @@ public class MetaManager : MonoBehaviour
 
     public static string _fighterid;
 
+    public localuserData userData = new localuserData();
     private void Awake()
     {
         insta = this;
@@ -34,6 +36,15 @@ public class MetaManager : MonoBehaviour
     private void Start()
     {
         Moralis.Start();
+        getUserDataonStart();
+    }
+    public async void getUserDataonStart()
+    {
+        var user = await Moralis.GetClient().GetCurrentUserAsync();
+        if (user == null) return;
+
+        UIManager.insta.UpdateUserName(user.username, user.ethAddress);
+
     }
 
     public async void submitName(string _name)
@@ -49,22 +60,26 @@ public class MetaManager : MonoBehaviour
         if (result)
         {
             Debug.Log("ReadyToPlay");
+            UIManager.insta.UpdateUserName(user.username, user.ethAddress);
             CheckUserData(user.objectId);
         }
 
     }
 
 
-    public async void updateObjectInDB()
+    public async void UpdateUserDatabase(string _uniqid)
     {
+
         MoralisQuery<MetaJungleDatabase> monster = await Moralis.Query<MetaJungleDatabase>();
-        monster = monster.WhereEqualTo("Name", "Aegon");
+        monster = monster.WhereEqualTo("userid", _uniqid);
         IEnumerable<MetaJungleDatabase> result = await monster.FindAsync();
         foreach (MetaJungleDatabase mon in result)
         {
             // mon.userid = "the_great_mage";
-            // mon.strength = 6000;
+            mon.userdata = JsonConvert.SerializeObject(userData);
             await mon.SaveAsync();
+            Debug.Log("UpdateUserDatabase");
+            break;
             // Debug.Log("The monster is " + mon.Name + " with " + mon.strength + " strength");
             // output : The monster is the_great_mage with 6000 strength
         }
@@ -81,7 +96,10 @@ public class MetaManager : MonoBehaviour
         foreach (MetaJungleDatabase mon in result)
         {
             Debug.Log("My username " + mon.userid + " and  data " + mon.userdata);
+            userData = JsonConvert.DeserializeObject<localuserData>(mon.userdata);
+            userData.score++;
             datathere = true;
+            UpdateUserDatabase(_uniqid);
             break;
         }
 
@@ -101,7 +119,7 @@ public class MetaManager : MonoBehaviour
     {
         MetaJungleDatabase monster = Moralis.GetClient().Create<MetaJungleDatabase>();
         monster.userid = _name;
-        monster.userdata = "userdataNeedToAdd";
+        monster.userdata = JsonConvert.SerializeObject(userData);
         monster.gamedata = "gamedataNeedToAdd";
         var result = await monster.SaveAsync();
 
@@ -126,6 +144,13 @@ public class MetaJungleDatabase : MoralisObject
 
     public MetaJungleDatabase() : base("MetaJungleDatabase") { }
 }
-
 #endregion
+
+[System.Serializable]
+public class localuserData {
+    public int fightWon = 0;
+    public int fightLose = 0;
+    public int score = 0;
+    public int characterNo = 0;
+}
 
