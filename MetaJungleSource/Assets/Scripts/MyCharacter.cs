@@ -358,8 +358,8 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
                 {
                     Debug.Log("UserLost");
                     AudioManager.insta.playSound(7);
-                    MetaManager.insta.userData.fightLose++;
-                    MetaManager.insta.UpdateUserDatabase();
+                    SingletonDataManager.userData.fightLose++;
+                    SingletonDataManager.insta.UpdateUserDatabase();
                 }
             }
 
@@ -381,8 +381,8 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
                 {
                     Debug.Log("User Winner");
                     AudioManager.insta.playSound(6);
-                    MetaManager.insta.userData.fightWon++;
-                    MetaManager.insta.UpdateUserDatabase();
+                    SingletonDataManager.userData.fightWon++;
+                    SingletonDataManager.insta.UpdateUserDatabase();
                 }
 
               

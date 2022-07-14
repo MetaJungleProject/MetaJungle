@@ -42,7 +42,10 @@ public class UIManager : MonoBehaviour
         statusText.gameObject.SetActive(true);
         statusText.text = "";
         healthSlider.value = 1;
-  
+
+       UpdatePlayerUIData(true, true);
+        UpdateUserName(SingletonDataManager.username, SingletonDataManager.userethAdd);
+
     }
 
     public void UpdatePlayerUIData(bool _show, bool _init = false)
@@ -50,13 +53,13 @@ public class UIManager : MonoBehaviour
         if (_show)
         {
             if (_init) {
-                nameInput.text = MetaManager.username;
-                SelectGender(MetaManager.insta.userData.characterNo);
+                nameInput.text = SingletonDataManager.username;
+                SelectGender(SingletonDataManager.userData.characterNo);
             }
             if (!GameplayUI.activeSelf) GameplayUI.SetActive(true);
-            scoreTxt.text = MetaManager.insta.userData.score.ToString();
-            winCountTxt.text = MetaManager.insta.userData.fightWon.ToString();
-            lostCountTxt.text = MetaManager.insta.userData.fightLose.ToString();
+            scoreTxt.text = SingletonDataManager.userData.score.ToString();
+            winCountTxt.text = SingletonDataManager.userData.fightWon.ToString();
+            lostCountTxt.text = SingletonDataManager.userData.fightLose.ToString();
             if(PhotonNetwork.LocalPlayer.CustomProperties["health"] != null) healthSlider.value = float.Parse(PhotonNetwork.LocalPlayer.CustomProperties["health"].ToString());
         }
         else
@@ -89,7 +92,7 @@ public class UIManager : MonoBehaviour
 
         usernameUI.SetActive(false);
 
-        MetaManager.insta.submitName(username);
+        SingletonDataManager.insta.submitName(username);
 
         MPNetworkManager.insta.OnConnectedToServer();
     }
@@ -108,7 +111,7 @@ public class UIManager : MonoBehaviour
         }
 
         usergender = _no;
-        MetaManager.insta.userData.characterNo = _no;
+        SingletonDataManager.userData.characterNo = _no;
     }
 
 
