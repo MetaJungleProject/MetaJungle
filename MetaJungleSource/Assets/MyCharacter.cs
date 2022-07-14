@@ -49,11 +49,12 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
     private void Awake()
     {
         WeaponCollider.SetActive(false);
+        pview = GetComponent<PhotonView>();
     }
     private void Start()
     {
 
-        pview = GetComponent<PhotonView>();
+        
         _inputs = GetComponentInParent<StarterAssetsInputs>();
         _customInput = new StarterAssets.StarterAssets();
         _customInput.Player.Enable();
@@ -425,7 +426,7 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
     //
     public void OnEvent(EventData photonEvent)
     {
-
+        
         byte eventCode = photonEvent.Code;
         if (eventCode == FightEventCode)
         {
@@ -441,7 +442,7 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
                     {
                         //Debug.Log(info.Sender + " is ready to fight " + pview.IsMine);
 
-
+                        UIManager.insta.UpdateStatus(PhotonNetwork.CurrentRoom.Players[photonEvent.Sender].NickName + " is ready to fight");
                         if (pview.IsMine)
                         {
                             var hash = PhotonNetwork.LocalPlayer.CustomProperties;
@@ -455,6 +456,7 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
                     {
                         //Debug.Log(info.Sender + " rejected fight");
                         AudioManager.insta.playSound(5);
+                        UIManager.insta.UpdateStatus(PhotonNetwork.CurrentRoom.Players[photonEvent.Sender].NickName + " rejected fight");
                     }
                 }
             }

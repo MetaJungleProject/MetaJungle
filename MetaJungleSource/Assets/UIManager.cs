@@ -42,7 +42,7 @@ public class UIManager : MonoBehaviour
     }
 
     IEnumerator ResetUpdateText() {
-        yield return new WaitForSeconds(1);
+        yield return new WaitForSeconds(2);
         statusText.text = "";
     }
 
