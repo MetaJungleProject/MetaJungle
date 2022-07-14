@@ -1,9 +1,8 @@
+using Photon.Pun;
 using System.Collections;
-using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
-using Photon.Pun;
 public class UIManager : MonoBehaviour
 {
     public static UIManager insta;
@@ -23,6 +22,12 @@ public class UIManager : MonoBehaviour
     public static string username;
     public static int usergender;
 
+    [Header("GameplayMenu")]
+    [SerializeField] GameObject GameplayUI;
+    [SerializeField] TMP_Text scoreTxt;
+    [SerializeField] TMP_Text winCountTxt;
+    [SerializeField] TMP_Text lostCountTxt;
+    [SerializeField] Slider healthSlider;
 
     private void Awake()
     {
@@ -34,31 +39,52 @@ public class UIManager : MonoBehaviour
         usernameUI.SetActive(true);
         gender[0].interactable = false;
         gender[1].interactable = true;
+        statusText.gameObject.SetActive(true);
         statusText.text = "";
-
+        healthSlider.value = 1;
+  
     }
 
-    private void Update()
+    public void UpdatePlayerUIData(bool _show, bool _init = false)
     {
-        
+        if (_show)
+        {
+            if (_init) {
+                nameInput.text = MetaManager.username;
+                SelectGender(MetaManager.insta.userData.characterNo);
+            }
+            if (!GameplayUI.activeSelf) GameplayUI.SetActive(true);
+            scoreTxt.text = MetaManager.insta.userData.score.ToString();
+            winCountTxt.text = MetaManager.insta.userData.fightWon.ToString();
+            lostCountTxt.text = MetaManager.insta.userData.fightLose.ToString();
+            if(PhotonNetwork.LocalPlayer.CustomProperties["health"] != null) healthSlider.value = float.Parse(PhotonNetwork.LocalPlayer.CustomProperties["health"].ToString());
+        }
+        else
+        {
+            GameplayUI.SetActive(false);
+        }
     }
 
-    public void UpdateUserName(string _name, string _ethad) {
+    public void UpdateUserName(string _name, string _ethad)
+    {
         usernameText.text = "Hi, " + _name + "\n Your crypto address is : " + _ethad;
     }
 
-    public void UpdateStatus(string _msg) {
+    public void UpdateStatus(string _msg)
+    {
         statusText.text = _msg;
         StartCoroutine(ResetUpdateText());
     }
 
-    IEnumerator ResetUpdateText() {
+    IEnumerator ResetUpdateText()
+    {
         yield return new WaitForSeconds(2);
         statusText.text = "";
     }
 
-    public void GetName() {
-        if (nameInput.text.Length > 0 &&  !nameInput.text.Contains("Enter")) username = nameInput.text;
+    public void GetName()
+    {
+        if (nameInput.text.Length > 0 && !nameInput.text.Contains("Enter")) username = nameInput.text;
         else username = "Player_" + Random.Range(11111, 99999);
 
         usernameUI.SetActive(false);
@@ -68,13 +94,15 @@ public class UIManager : MonoBehaviour
         MPNetworkManager.insta.OnConnectedToServer();
     }
 
-    public void SelectGender(int _no) {
+    public void SelectGender(int _no)
+    {
         if (_no == 0)
         {
             gender[0].interactable = false;
             gender[1].interactable = true;
         }
-        else {
+        else
+        {
             gender[1].interactable = false;
             gender[0].interactable = true;
         }
@@ -85,7 +113,8 @@ public class UIManager : MonoBehaviour
 
 
     #region FightREquest
-    public void FightReq(string _userdata) {
+    public void FightReq(string _userdata)
+    {
         FightRequestUI.SetActive(true);
         fightRequestText.text = _userdata + " want to fight with you !";
     }
@@ -94,10 +123,11 @@ public class UIManager : MonoBehaviour
     {
         if (_accept)
         {
-           
+
         }
-        else { 
-        
+        else
+        {
+
         }
         MetaManager.insta.myPlayer.GetComponent<MyCharacter>().RequestFightAction(_accept);
         FightRequestUI.SetActive(false);

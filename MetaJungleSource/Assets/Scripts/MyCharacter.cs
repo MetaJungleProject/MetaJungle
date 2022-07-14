@@ -343,6 +343,8 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
                     var hash = PhotonNetwork.LocalPlayer.CustomProperties;
                     hash["health"] = healthbarIng.fillAmount;
                     PhotonNetwork.LocalPlayer.SetCustomProperties(hash);
+
+                    UIManager.insta.UpdatePlayerUIData(true);
                 }
             }
             else
@@ -352,7 +354,13 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
                 ResetWeapon();
                 ResetFight();
 
-                if (pview.IsMine) AudioManager.insta.playSound(7);
+                if (pview.IsMine)
+                {
+                    Debug.Log("UserLost");
+                    AudioManager.insta.playSound(7);
+                    MetaManager.insta.userData.fightLose++;
+                    MetaManager.insta.UpdateUserDatabase();
+                }
             }
 
            
@@ -369,9 +377,15 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
         {
             if (!(bool)targetPlayer.CustomProperties["isfighting"] && healthUI.activeSelf)
             {
-                if ((bool)pview.Owner.CustomProperties["isfighting"] && pview.IsMine) AudioManager.insta.playSound(6);
+                if ((bool)pview.Owner.CustomProperties["isfighting"] && pview.IsMine)
+                {
+                    Debug.Log("User Winner");
+                    AudioManager.insta.playSound(6);
+                    MetaManager.insta.userData.fightWon++;
+                    MetaManager.insta.UpdateUserDatabase();
+                }
 
-                Debug.Log("Updated Propertied");
+              
                 showHealthBar(false);
                 ResetFight();
                 ResetWeapon();
