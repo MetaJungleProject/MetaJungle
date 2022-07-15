@@ -26,8 +26,8 @@ public class StoreManager : MonoBehaviour
     private void Start()
     {
         for (int i = 0; i < itemButtons.Length; i++) {
-            if (SingletonDataManager.insta.nftImg[i]) {
-                itemButtons[i].GetComponent<RawImage>().texture = SingletonDataManager.insta.nftImg[i];
+            if (SingletonDataManager.metanftlocalData[i].imageTexture) {
+                itemButtons[i].GetComponent<RawImage>().texture = SingletonDataManager.metanftlocalData[i].imageTexture;
             }
         }
     }
@@ -37,12 +37,20 @@ public class StoreManager : MonoBehaviour
         itemPanelUI.SetActive(false);
         itemPurchaseUI.SetActive(true);
         purchaseItemImg.texture = itemButtons[_no].GetComponent<RawImage>().texture;
+        purchaseItemText.text = SingletonDataManager.metanftlocalData[_no].description;
         Debug.Log("Selected item " + _no);
     }
 
     public void purchaseItem()
     {
+        Debug.Log("purchaseItem");
+        MetadataNFT meta = new MetadataNFT();
+        meta.name = SingletonDataManager.metanftlocalData[currentSelectedItem].name;
+        meta.description = SingletonDataManager.metanftlocalData[currentSelectedItem].description;
+        meta.image = SingletonDataManager.metanftlocalData[currentSelectedItem].imageurl;
+        //meta.itemid = SingletonDataManager.metanftlocalData[currentSelectedItem].
 
+        NFTPurchaser.insta.StartCoroutine(NFTPurchaser.insta.UploadNFTMetadata(Newtonsoft.Json.JsonConvert.SerializeObject(meta)));
     }
 
     public void ClosePurchasePanel()

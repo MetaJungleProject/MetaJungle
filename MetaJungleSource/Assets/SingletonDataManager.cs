@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
+using Defective.JSON;
 
 public class SingletonDataManager : MonoBehaviour
 {
@@ -20,8 +21,14 @@ public class SingletonDataManager : MonoBehaviour
 
     public string contract_abi;
     public string contract_ethAddress;
+    public const string postfixMetaUrl = ".ipfs.nftstorage.link/metadata.json";
+    public static string nftmetaCDI;
 
     bool initData = false;
+
+
+    public string jsonData;
+
     private void Awake()
     {
         if (insta == null)
@@ -40,6 +47,11 @@ public class SingletonDataManager : MonoBehaviour
     {
         Moralis.Start();
         //getUserDataonStart();
+
+        //JsonReader jr = JSON. JsonConvert.DeserializeObject(jsonData);
+
+       
+      
 
     }
 
@@ -176,14 +188,15 @@ public class SingletonDataManager : MonoBehaviour
         // return false;
     }
 
-    public List<Texture> nftImg = new List<Texture>();
+    //public List<Texture> nftImg = new List<Texture>();
     public void GetAllNFTImg() {
         for (int i = 0; i < metanftlocalData.Count; i++) {
-            StartCoroutine(GetTexture(metanftlocalData[i].imageurl));
+            StartCoroutine(GetTexture(metanftlocalData[i].imageurl, i));
         }
       
     }
-    IEnumerator GetTexture(string _url)
+
+    IEnumerator GetTexture(string _url, int _index)
     {
         UnityWebRequest www = UnityWebRequestTexture.GetTexture(_url);
         yield return www.SendWebRequest();
@@ -194,7 +207,7 @@ public class SingletonDataManager : MonoBehaviour
         }
         else
         {
-            nftImg.Add(((DownloadHandlerTexture)www.downloadHandler).texture);
+            metanftlocalData[_index].imageTexture = (((DownloadHandlerTexture)www.downloadHandler).texture);
         }
     }
 

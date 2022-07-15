@@ -49,5 +49,24 @@ public class MetaJungleNFTLocal
     public string description;
     public string imageurl;
     public int cost;
+    public Texture imageTexture;
 }
+
+
+
+[System.Serializable]
+public class MetadataNFT
+{
+    //public int itemid;
+    public string name;
+    public string description;
+    public string image;
+    public properties properties =  new properties();
+}
+
+[System.Serializable]
+public class properties {
+    public string videoClip = null;
+}
+
 #endregion
