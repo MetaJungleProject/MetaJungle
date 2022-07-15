@@ -1,9 +1,11 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using MoralisUnity;
 using MoralisUnity.Platform.Queries;
 using Newtonsoft.Json;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
+using UnityEngine.Networking;
 
 public class SingletonDataManager : MonoBehaviour
 {
@@ -13,6 +15,11 @@ public class SingletonDataManager : MonoBehaviour
     public static string username;
     public static string userethAdd;
     public static string useruniqid;
+    [SerializeField]
+    public static List<MetaJungleNFTLocal> metanftlocalData = new List<MetaJungleNFTLocal>();
+
+    public string contract_abi;
+    public string contract_ethAddress;
 
     bool initData = false;
     private void Awake()
@@ -22,7 +29,8 @@ public class SingletonDataManager : MonoBehaviour
             insta = this;
             DontDestroyOnLoad(gameObject);
         }
-        else {
+        else
+        {
             Destroy(gameObject);
             return;
         }
@@ -32,11 +40,14 @@ public class SingletonDataManager : MonoBehaviour
     {
         Moralis.Start();
         //getUserDataonStart();
+
     }
 
 
     public async void getUserDataonStart()
     {
+        getNFTDetailsData();
+
         var user = await Moralis.GetClient().GetCurrentUserAsync();
         if (user == null) return;
         username = user.username;
@@ -69,7 +80,7 @@ public class SingletonDataManager : MonoBehaviour
 
     public async void UpdateUserDatabase()
     {
-        if(UIManager.insta) UIManager.insta.UpdatePlayerUIData(true);
+        if (UIManager.insta) UIManager.insta.UpdatePlayerUIData(true);
         MoralisQuery<MetaJungleDatabase> monster = await Moralis.Query<MetaJungleDatabase>();
         monster = monster.WhereEqualTo("userid", useruniqid);
         IEnumerable<MetaJungleDatabase> result = await monster.FindAsync();
@@ -95,7 +106,7 @@ public class SingletonDataManager : MonoBehaviour
             Debug.Log("My username " + mon.userid + " and  data " + mon.userdata);
             userData = JsonConvert.DeserializeObject<localuserData>(mon.userdata);
             datathere = true;
-           
+
             //UpdateUserDatabase(_uniqid);
             break;
         }
@@ -108,7 +119,8 @@ public class SingletonDataManager : MonoBehaviour
         else
         {
             Debug.Log("userDataAlreadyThere");
-            if (initData) {
+            if (initData)
+            {
                 initData = false;
                 UnityEngine.SceneManagement.SceneManager.LoadScene("OpenWorld");
             }
@@ -131,4 +143,59 @@ public class SingletonDataManager : MonoBehaviour
         }
 
     }
+
+
+    public async void getNFTDetailsData()
+    {
+
+        //
+        MoralisQuery<MetaJungleNFT> _getAllItemsQuery = await Moralis.Query<MetaJungleNFT>();
+        IEnumerable<MetaJungleNFT> databaseItems = await _getAllItemsQuery.FindAsync();
+
+        var databaseItemsList = databaseItems.ToList();
+        if (!databaseItemsList.Any()) return;
+
+
+        foreach (var databaseItem in databaseItemsList)
+        {
+            //PopulateShopItem(databaseItem);
+            if (databaseItem.name != null)
+            {
+                MetaJungleNFTLocal _data = new MetaJungleNFTLocal();
+                _data.imageurl = databaseItem.imageurl;
+                _data.name = databaseItem.name;
+                _data.description = databaseItem.description;
+                _data.cost = databaseItem.cost;
+                _data.itemid = databaseItem.itemid;
+                metanftlocalData.Add(_data);
+            }
+        }
+
+        Debug.Log("DAta is " + JsonConvert.SerializeObject(metanftlocalData));
+        GetAllNFTImg();
+        // return false;
+    }
+
+    public List<Texture> nftImg = new List<Texture>();
+    public void GetAllNFTImg() {
+        for (int i = 0; i < metanftlocalData.Count; i++) {
+            StartCoroutine(GetTexture(metanftlocalData[i].imageurl));
+        }
+      
+    }
+    IEnumerator GetTexture(string _url)
+    {
+        UnityWebRequest www = UnityWebRequestTexture.GetTexture(_url);
+        yield return www.SendWebRequest();
+
+        if (www.result != UnityWebRequest.Result.Success)
+        {
+            Debug.Log(www.error);
+        }
+        else
+        {
+            nftImg.Add(((DownloadHandlerTexture)www.downloadHandler).texture);
+        }
+    }
+
 }
