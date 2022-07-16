@@ -15,7 +15,7 @@ namespace FrostweepGames.WebGLPUNVoice
 
 		private object _lock = new object();
 
-		private bool _listening;
+		public bool _listening;
 
 		/// <summary>
 		/// Sets if listening of netowrk events should be started at awake

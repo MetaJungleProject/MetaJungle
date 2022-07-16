@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
+using FrostweepGames.Plugins.Native;
 
 public class SingletonDataManager : MonoBehaviour
 {
@@ -50,6 +51,9 @@ public class SingletonDataManager : MonoBehaviour
 
     private void Start()
     {
+        CustomMicrophone.RequestMicrophonePermission();
+        CustomMicrophone.RefreshMicrophoneDevices();
+
         Moralis.Start();
         //getUserDataonStart();
 

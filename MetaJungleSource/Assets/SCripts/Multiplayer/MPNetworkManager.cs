@@ -14,6 +14,7 @@ public class MPNetworkManager : MonoBehaviourPunCallbacks
     //public static List<GameObject> _characters = new List<GameObject>();
 
     [SerializeField] FrostweepGames.WebGLPUNVoice.Recorder rec;
+    [SerializeField] GameObject VoiceObj;
     private void Awake()
     {
         insta = this;
@@ -22,6 +23,9 @@ public class MPNetworkManager : MonoBehaviourPunCallbacks
     private void Start()
     {
         // OnConnectedToServer();
+        VoiceObj.SetActive(true);
+        rec.RefreshMicrophones();
+        rec.reliableTransmission = false;
     }
 
     #region CommonStuff
@@ -154,7 +158,10 @@ public class MPNetworkManager : MonoBehaviourPunCallbacks
         // joined a room successfully, CreateRoom leads here on success
         Debug.Log("OnJoinedRoom");
         NPSpawner.GeneratePlayer();
+        rec.RefreshMicrophones();
         rec.StartRecord();
+        
+        //rec.RefreshMicrophones();
     }
     #endregion
 

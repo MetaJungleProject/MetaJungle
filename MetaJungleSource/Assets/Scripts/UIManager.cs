@@ -3,6 +3,7 @@ using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using FrostweepGames;
 public class UIManager : MonoBehaviour
 {
     public static UIManager insta;
@@ -28,6 +29,9 @@ public class UIManager : MonoBehaviour
     [SerializeField] TMP_Text winCountTxt;
     [SerializeField] TMP_Text lostCountTxt;
     [SerializeField] Slider healthSlider;
+
+    [SerializeField] FrostweepGames.WebGLPUNVoice.Recorder recorder;
+    [SerializeField] FrostweepGames.WebGLPUNVoice.Listener lister;
 
     private void Awake()
     {
@@ -68,6 +72,25 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    public void MuteUnmute() {
+        if (recorder.recording)
+        {
+            recorder.recording = false;
+        }
+        else {
+            recorder.recording = true;
+        }
+    }
+
+    public void MuteUnmuteListner() {
+        if (lister._listening)
+        {
+            lister._listening = false;
+        }
+        else {
+            lister._listening = true;
+        }
+    }
 
     public void openMyWorld() {
         UnityEngine.SceneManagement.SceneManager.LoadScene("VirtualWorld");
