@@ -57,10 +57,21 @@ public class MetaJungleNFTLocal
 [System.Serializable]
 public class MetadataNFT
 {
-    //public int itemid;
+    public int itemid;
     public string name;
     public string description;
     public string image;
+    //public properties properties =  new properties();
+}
+
+[System.Serializable]
+public class MyMetadataNFT
+{
+    public int itemid;
+    public string name;
+    public string description;
+    public string image;
+    public string tokenId;
     //public properties properties =  new properties();
 }
 

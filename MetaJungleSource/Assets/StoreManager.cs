@@ -47,6 +47,7 @@ public class StoreManager : MonoBehaviour
     {
         Debug.Log("purchaseItem");
         MetadataNFT meta = new MetadataNFT();
+        meta.itemid = SingletonDataManager.metanftlocalData[currentSelectedItem].itemid;
         meta.name = SingletonDataManager.metanftlocalData[currentSelectedItem].name;
         meta.description = SingletonDataManager.metanftlocalData[currentSelectedItem].description;
         meta.image = SingletonDataManager.metanftlocalData[currentSelectedItem].imageurl;
