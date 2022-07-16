@@ -61,7 +61,7 @@ public class MetadataNFT
     public string name;
     public string description;
     public string image;
-    public properties properties =  new properties();
+    //public properties properties =  new properties();
 }
 
 [System.Serializable]

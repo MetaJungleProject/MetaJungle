@@ -59,7 +59,7 @@ public class NFTPurchaser : MonoBehaviour
                 if (j.HasField("value"))
                 {
                     //Debug.Log("Predata " + j.GetField("value").GetField("ipnft").stringValue);
-                    SingletonDataManager.nftmetaCDI = j.GetField("value").GetField("ipnft").stringValue;
+                    SingletonDataManager.nftmetaCDI = j.GetField("value").GetField("url").stringValue; //ipnft
                     Debug.Log("Metadata saved successfully");
                     PurchaseItem();
                 }
@@ -118,10 +118,10 @@ public class NFTPurchaser : MonoBehaviour
     {
         PurchaseStarted?.Invoke();
 
-       
+
         //transactionInfoText.text = "Creating and saving metadata to IPFS...";
 
-        var metadataUrl = SingletonDataManager.nftmetaCDI + SingletonDataManager.postfixMetaUrl;
+        var metadataUrl = SingletonDataManager.nftmetaCDI;// + SingletonDataManager.postfixMetaUrl;
 
      
         //transactionInfoText.text = "Metadata saved successfully";

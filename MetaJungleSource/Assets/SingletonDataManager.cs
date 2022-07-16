@@ -7,6 +7,8 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
 using Defective.JSON;
+using MoralisUnity.Web3Api.Models;
+using System;
 
 public class SingletonDataManager : MonoBehaviour
 {
@@ -23,6 +25,7 @@ public class SingletonDataManager : MonoBehaviour
     public string contract_ethAddress;
     public const string postfixMetaUrl = ".ipfs.nftstorage.link/metadata.json";
     public static string nftmetaCDI;
+    public static ChainList ContractChain = ChainList.mumbai;
 
     bool initData = false;
 
@@ -209,6 +212,76 @@ public class SingletonDataManager : MonoBehaviour
         else
         {
             metanftlocalData[_index].imageTexture = (((DownloadHandlerTexture)www.downloadHandler).texture);
+        }
+    }
+
+
+
+    public async void LoadPurchasedItems()
+    {
+        //We get our wallet address.
+       // MoralisUser user = await Moralis.GetUserAsync();
+        var user = await Moralis.GetClient().GetCurrentUserAsync();
+        var playerAddress = user.authData["moralisEth"]["id"].ToString();
+
+        Debug.Log("playerAddress " + playerAddress);
+        try
+        {
+            NftOwnerCollection noc =
+                await Moralis.GetClient().Web3Api.Account.GetNFTsForContract(playerAddress.ToLower(),
+                    contract_ethAddress,
+                    ContractChain);
+
+            List<NftOwner> nftOwners = noc.Result;
+            Debug.Log("nftOwners " + nftOwners.Count);
+            Debug.Log("nftOwnersJson " + noc.ToJson());
+            // We only proceed if we find some
+            if (!nftOwners.Any())
+            {
+                Debug.Log("You don't own any NFT");
+                return;
+            }
+
+
+            for (int i = 0; i < nftOwners.Count; i++) {
+                if (nftOwners[i].Metadata == null)
+                {
+                    // Sometimes GetNFTsForContract fails to get NFT Metadata. We need to re-sync
+                    //Moralis.GetClient().Web3Api.Token.ReSyncMetadata(nftOwner.TokenAddress, nftOwner.TokenId, ContractChain);
+                    Debug.Log("We couldn't get NFT Metadata. Re-syncing...");
+                    continue;
+                }
+               
+                    var nftMetaData = nftOwners[i].Metadata;
+                    NftMetadata formattedMetaData = JsonUtility.FromJson<NftMetadata>(nftMetaData);
+                    Debug.Log(nftOwners[i].TokenId + " nftMetaData " + JsonConvert.DeserializeObject(nftMetaData));
+                    //PopulatePlayerItem(nftOwner.TokenId, formattedMetaData);
+                    Debug.Log("PopulatePlayerItem " + nftOwners[i].TokenId + " | " + formattedMetaData.ToJson());
+                
+            }
+
+           /* foreach (var nftOwner in nftOwners)
+            {
+                if (nftOwner.Metadata == null)
+                {
+                    // Sometimes GetNFTsForContract fails to get NFT Metadata. We need to re-sync
+                    //Moralis.GetClient().Web3Api.Token.ReSyncMetadata(nftOwner.TokenAddress, nftOwner.TokenId, ContractChain);
+                    Debug.Log("We couldn't get NFT Metadata. Re-syncing...");
+                    //continue;
+                }
+                if (nftOwner.Metadata != null)
+                {
+                    var nftMetaData = nftOwner.Metadata;
+                    NftMetadata formattedMetaData = JsonUtility.FromJson<NftMetadata>(nftMetaData);
+                    Debug.Log(nftOwner.TokenId + " nftMetaData " + JsonConvert.DeserializeObject(nftMetaData));
+                    //PopulatePlayerItem(nftOwner.TokenId, formattedMetaData);
+                    Debug.Log("PopulatePlayerItem " + nftOwner.TokenId + " | " + formattedMetaData.ToJson());
+                }
+            }*/
+        }
+        catch (Exception exp)
+        {
+            Debug.LogError(exp.Message);
         }
     }
 

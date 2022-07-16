@@ -30,6 +30,8 @@ public class StoreManager : MonoBehaviour
                 itemButtons[i].GetComponent<RawImage>().texture = SingletonDataManager.metanftlocalData[i].imageTexture;
             }
         }
+
+        SingletonDataManager.insta.LoadPurchasedItems();
     }
     public void SelectItem(int _no)
     {
