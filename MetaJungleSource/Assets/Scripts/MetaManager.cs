@@ -1,7 +1,6 @@
 using Cinemachine;
-using MoralisUnity;
+using Photon.Pun;
 using StarterAssets;
-using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
 
@@ -25,7 +24,7 @@ public class MetaManager : MonoBehaviour
 
     public static string _fighterid;
 
-  
+
 
 
     private void Awake()
@@ -33,8 +32,21 @@ public class MetaManager : MonoBehaviour
         insta = this;
     }
 
- 
-    
+    private void Start()
+    {
+        if (SingletonDataManager.myNFTData.Count > 0)
+        {
+            UpdatePlayerWorldProperties();
+        }
+    }
+
+    public void UpdatePlayerWorldProperties()
+    {
+        var hash = PhotonNetwork.LocalPlayer.CustomProperties;
+        hash["virtualworld"] = (JsonConvert.SerializeObject(SingletonDataManager.myNFTData)).ToString();
+        PhotonNetwork.LocalPlayer.SetCustomProperties(hash);
+        Debug.Log("Updated UpdatePlayerWorldProperties");
+    }
 
 }
 

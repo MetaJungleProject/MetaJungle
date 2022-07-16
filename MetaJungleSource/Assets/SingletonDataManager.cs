@@ -20,6 +20,8 @@ public class SingletonDataManager : MonoBehaviour
     [SerializeField]
     public static List<MetaJungleNFTLocal> metanftlocalData = new List<MetaJungleNFTLocal>();
     public static List<MyMetadataNFT> myNFTData = new List<MyMetadataNFT>();
+    public static List<MyMetadataNFT> otherPlayerNFTData = new List<MyMetadataNFT>();
+    public static bool isMyVirtualWorld = true;
 
     public string contract_abi;
     public string contract_ethAddress;
@@ -229,6 +231,7 @@ public class SingletonDataManager : MonoBehaviour
         var playerAddress = user.authData["moralisEth"]["id"].ToString();
 
         Debug.Log("playerAddress " + playerAddress);
+        myNFTData.Clear();
         try
         {
             NftOwnerCollection noc =
@@ -267,9 +270,6 @@ public class SingletonDataManager : MonoBehaviour
 
                 //PopulatePlayerItem(nftOwner.TokenId, formattedMetaData);
                 Debug.Log("PopulatePlayerItem " + nftOwners[i].TokenId + " | " + formattedMetaData.ToJson());
-
-
-
             }
 
             /* foreach (var nftOwner in nftOwners)
@@ -294,6 +294,12 @@ public class SingletonDataManager : MonoBehaviour
         catch (Exception exp)
         {
             Debug.LogError(exp.Message);
+        }
+
+        if (myNFTData.Count > 0) {
+            if (MetaManager.insta) {
+                MetaManager.insta.UpdatePlayerWorldProperties();
+            }
         }
     }
 

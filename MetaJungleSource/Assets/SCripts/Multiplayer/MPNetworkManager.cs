@@ -92,6 +92,7 @@ public class MPNetworkManager : MonoBehaviourPunCallbacks
         hash.Add("char_no", UIManager.usergender);
         hash.Add("isfighting", false);
         hash.Add("health", 1);
+        hash.Add("virtualworld", "null");
         PhotonNetwork.LocalPlayer.SetCustomProperties(hash);
 
         roomIndex = PlayerPrefs.GetInt("musePoz", 0); //room index on network

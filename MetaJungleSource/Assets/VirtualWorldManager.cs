@@ -13,11 +13,24 @@ public class VirtualWorldManager : MonoBehaviour
         for (int i = 0; i < userworldObj.Count; i++)
         {
             userworldObj[i].SetActive(false);
-            for (int j = 0; j < SingletonDataManager.myNFTData.Count; j++)
+            if (SingletonDataManager.isMyVirtualWorld)
             {
-                if (SingletonDataManager.myNFTData[j].itemid == i)
+                for (int j = 0; j < SingletonDataManager.myNFTData.Count; j++)
                 {
-                    userworldObj[i].SetActive(true);
+                    if (SingletonDataManager.myNFTData[j].itemid == i)
+                    {
+                        userworldObj[i].SetActive(true);
+                    }
+                }
+            }
+            else
+            {
+                for (int j = 0; j < SingletonDataManager.otherPlayerNFTData.Count; j++)
+                {
+                    if (SingletonDataManager.otherPlayerNFTData[j].itemid == i)
+                    {
+                        userworldObj[i].SetActive(true);
+                    }
                 }
             }
 
