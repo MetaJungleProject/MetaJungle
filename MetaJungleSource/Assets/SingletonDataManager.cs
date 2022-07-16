@@ -19,7 +19,7 @@ public class SingletonDataManager : MonoBehaviour
     public static string useruniqid;
     [SerializeField]
     public static List<MetaJungleNFTLocal> metanftlocalData = new List<MetaJungleNFTLocal>();
-    public  List<MyMetadataNFT> myNFTData = new List<MyMetadataNFT>();
+    public static List<MyMetadataNFT> myNFTData = new List<MyMetadataNFT>();
 
     public string contract_abi;
     public string contract_ethAddress;
@@ -72,6 +72,8 @@ public class SingletonDataManager : MonoBehaviour
         //UIManager.insta.
         initData = true;
         CheckUserData();
+
+        LoadPurchasedItems();
 
     }
 

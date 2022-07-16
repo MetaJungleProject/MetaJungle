@@ -31,6 +31,11 @@ public class StoreManager : MonoBehaviour
             }
         }
 
+        for (int i = 0; i < SingletonDataManager.myNFTData.Count; i++)
+        {
+           itemButtons[SingletonDataManager.myNFTData[i].itemid].interactable = false;
+        }
+
         SingletonDataManager.insta.LoadPurchasedItems();
     }
     public void SelectItem(int _no)
