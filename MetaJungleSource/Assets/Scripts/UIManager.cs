@@ -68,6 +68,10 @@ public class UIManager : MonoBehaviour
         }
     }
 
+
+    public void openMyWorld() {
+        UnityEngine.SceneManagement.SceneManager.LoadScene("VirtualWorld");
+    }
     public void UpdateUserName(string _name, string _ethad)
     {
         usernameText.text = "Hi, " + _name + "\n Your crypto address is : " + _ethad;
