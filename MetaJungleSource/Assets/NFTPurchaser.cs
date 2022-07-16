@@ -32,22 +32,6 @@ public class NFTPurchaser : MonoBehaviour
         //StartCoroutine(UploadPNG());
     }
 
-    private async UniTask<string> CreateIpfsMetadata()
-    {
-        // 1. Build Metadata
-        object metadata = MoralisTools.BuildMetadata("name", "description", "imageUrl");
-
-        string metadataName = $"{"name"}_{"objectId"}.json";
-
-        // 2. Encoding JSON
-        string json = JsonConvert.SerializeObject(metadata);
-        string base64Data = Convert.ToBase64String(Encoding.UTF8.GetBytes(json));
-
-        // 3. Save metadata to IPFS
-        //string ipfsMetadataPath = await MoralisTools.SaveToIpfs(metadataName, base64Data);
-
-        return json;
-    }
 
 
     public IEnumerator UploadNFTMetadata(string _metadata)
@@ -146,7 +130,7 @@ public class NFTPurchaser : MonoBehaviour
 
         //transactionInfoText.text = "Please confirm transaction in your wallet";
 
-        Debug.Log("Please confirm transaction in your wallet");
+        Debug.Log("Please confirm transaction in your wallet " + tokenId);
         var result = await PurchaseItemFromContract(tokenId, metadataUrl);
 
         if (result is null)

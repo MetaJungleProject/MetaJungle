@@ -50,8 +50,9 @@ public class SingletonDataManager : MonoBehaviour
 
         //JsonReader jr = JSON. JsonConvert.DeserializeObject(jsonData);
 
-       
-      
+
+        long tokenId = MoralisTools.ConvertStringToLong(jsonData);
+        Debug.Log(tokenId);
 
     }
 
