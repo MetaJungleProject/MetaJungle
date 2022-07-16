@@ -2,7 +2,7 @@ using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine;
 using Hashtable = ExitGames.Client.Photon.Hashtable;
-
+using FrostweepGames;
 public class MPNetworkManager : MonoBehaviourPunCallbacks
 {
     public static MPNetworkManager insta;
@@ -13,6 +13,7 @@ public class MPNetworkManager : MonoBehaviourPunCallbacks
 
     //public static List<GameObject> _characters = new List<GameObject>();
 
+    [SerializeField] FrostweepGames.WebGLPUNVoice.Recorder rec;
     private void Awake()
     {
         insta = this;
@@ -153,6 +154,7 @@ public class MPNetworkManager : MonoBehaviourPunCallbacks
         // joined a room successfully, CreateRoom leads here on success
         Debug.Log("OnJoinedRoom");
         NPSpawner.GeneratePlayer();
+        rec.StartRecord();
     }
     #endregion
 
