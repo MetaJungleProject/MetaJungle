@@ -9,7 +9,7 @@ public class StoreManager : MonoBehaviour
     [SerializeField] GameObject itemPurchaseUI;
 
     //item panel stuff
-    [SerializeField] Button[] itemButtons;
+    //[SerializeField] Button[] itemButtons;
 
 
     //purcahse panel stuff
@@ -18,14 +18,18 @@ public class StoreManager : MonoBehaviour
 
     int currentSelectedItem = -1;
 
+    [SerializeField] Transform itemParent;
+    //item panel stuff
+    [SerializeField] GameObject itemButtonPrefab;
+
     private void Awake()
     {
         insta = this;
     }
 
-    private void Start()
+    private void OnEnable()
     {
-        for (int i = 0; i < itemButtons.Length; i++) {
+        /*for (int i = 0; i < itemButtons.Length; i++) {
             if (SingletonDataManager.metanftlocalData[i].imageTexture) {
                 itemButtons[i].GetComponent<RawImage>().texture = SingletonDataManager.metanftlocalData[i].imageTexture;
             }
@@ -34,18 +38,45 @@ public class StoreManager : MonoBehaviour
         for (int i = 0; i < SingletonDataManager.myNFTData.Count; i++)
         {
            itemButtons[SingletonDataManager.myNFTData[i].itemid].interactable = false;
+        }*/
+
+
+        foreach (Transform t in itemParent)
+        {
+            Destroy(t.gameObject);
         }
 
-        SingletonDataManager.insta.LoadPurchasedItems();
+        for (int i = 0; i < SingletonDataManager.metanftlocalData.Count; i++)
+        {
+            bool check = false;
+            for (int j = 0; i < SingletonDataManager.myNFTData.Count; i++)
+            {
+                if (SingletonDataManager.myNFTData[j].itemid == i) check = true;
+            }
+
+            if (!check)
+            {
+                var temp = Instantiate(itemButtonPrefab, itemParent);
+                temp.GetComponent<RawImage>().texture = SingletonDataManager.metanftlocalData[i].imageTexture;
+                temp.transform.GetChild(0).GetComponent<TMP_Text>().text = SingletonDataManager.metanftlocalData[i].cost.ToString();
+                var tempNo = i;
+                var tempTexture = SingletonDataManager.metanftlocalData[i].imageTexture;
+                temp.GetComponent<Button>().onClick.AddListener(() => SelectItem(tempNo, tempTexture));
+            }
+        }
+        //SingletonDataManager.insta.LoadPurchasedItems();
     }
-    public void SelectItem(int _no)
+
+
+    public void SelectItem(int _no, Texture _texture)
     {
+        Debug.Log("Selected item " + _no);
         currentSelectedItem = _no;
         itemPanelUI.SetActive(false);
         itemPurchaseUI.SetActive(true);
-        purchaseItemImg.texture = itemButtons[_no].GetComponent<RawImage>().texture;
+        purchaseItemImg.texture = _texture;// itemButtons[_no].GetComponent<RawImage>().texture;
         purchaseItemText.text = SingletonDataManager.metanftlocalData[_no].description;
-        Debug.Log("Selected item " + _no);
+        
     }
 
     public void purchaseItem()

@@ -7,7 +7,8 @@ public class VirtualWorldManager : MonoBehaviour
     [SerializeField]
     List<GameObject> userworldObj = new List<GameObject>();
     [SerializeField] Transform playerLocation;
-    Transform playerLastLocation;
+    Vector3 playerLastPoz;
+    Quaternion playerLastRot;
 
     [SerializeField]
     GameObject homeBtn;
@@ -22,7 +23,8 @@ public class VirtualWorldManager : MonoBehaviour
         homeBtn.SetActive(true);
         myWorldBtn.SetActive(false);
 
-        playerLastLocation = MetaManager.insta.myPlayer.transform;
+        playerLastPoz = MetaManager.insta.myPlayer.transform.position;
+        playerLastRot = MetaManager.insta.myPlayer.transform.rotation;
 
         for (int i = 0; i < userworldObj.Count; i++)
         {
@@ -57,8 +59,8 @@ public class VirtualWorldManager : MonoBehaviour
     private void OnDisable()
     {
         //MetaManager.insta.myPlayer.transform.SetPositionAndRotation(playerLastLocation.position, playerLastLocation.rotation);
-        MetaManager.insta.myPlayer.transform.position = playerLastLocation.position;
-        MetaManager.insta.myPlayer.transform.rotation = playerLastLocation.rotation;
+        MetaManager.insta.myPlayer.transform.position = playerLastPoz;
+        MetaManager.insta.myPlayer.transform.rotation = playerLastRot;
 
         homeBtn.SetActive(false);
         myWorldBtn.SetActive(true);

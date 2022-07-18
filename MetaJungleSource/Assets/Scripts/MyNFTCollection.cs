@@ -26,38 +26,37 @@ public class MyNFTCollection : MonoBehaviour
         insta = this;
     }
 
-    private void Start()
+    private void OnEnable()
     {
+
+        foreach (GameObject g in itemParent) {
+            Destroy(g);
+        }
+
         for (int i = 0; i < SingletonDataManager.myNFTData.Count; i++)
         {
             var temp = Instantiate(itemButtonPrefab, itemParent);
             temp.GetComponent<RawImage>().texture = SingletonDataManager.metanftlocalData[SingletonDataManager.myNFTData[i].itemid].imageTexture;
+            var tempNo = i;
+            var tempTexture = temp.GetComponent<RawImage>().texture;
+            temp.GetComponent<Button>().onClick.AddListener(() => SelectItem(tempNo, tempTexture));
         }
 
        
     }
-    public void SelectItem(int _no)
+
+    public void SelectItem(int _no, Texture _texture)
     {
+        Debug.Log("Selected item " + _no);
         currentSelectedItem = _no;
         itemPanelUI.SetActive(false);
         itemPurchaseUI.SetActive(true);
-        //purchaseItemImg.texture = itemButtons[_no].GetComponent<RawImage>().texture;
-        purchaseItemText.text = SingletonDataManager.metanftlocalData[_no].description;
-        Debug.Log("Selected item " + _no);
+        purchaseItemImg.texture = _texture;// itemButtons[_no].GetComponent<RawImage>().texture;
+        purchaseItemText.text = SingletonDataManager.myNFTData[_no].description;
+
     }
 
-    public void purchaseItem()
-    {
-        Debug.Log("purchaseItem");
-        MetadataNFT meta = new MetadataNFT();
-        meta.itemid = SingletonDataManager.metanftlocalData[currentSelectedItem].itemid;
-        meta.name = SingletonDataManager.metanftlocalData[currentSelectedItem].name;
-        meta.description = SingletonDataManager.metanftlocalData[currentSelectedItem].description;
-        meta.image = SingletonDataManager.metanftlocalData[currentSelectedItem].imageurl;
-        //meta.itemid = SingletonDataManager.metanftlocalData[currentSelectedItem].
 
-        NFTPurchaser.insta.StartCoroutine(NFTPurchaser.insta.UploadNFTMetadata(Newtonsoft.Json.JsonConvert.SerializeObject(meta)));
-    }
 
     public void ClosePurchasePanel()
     {
