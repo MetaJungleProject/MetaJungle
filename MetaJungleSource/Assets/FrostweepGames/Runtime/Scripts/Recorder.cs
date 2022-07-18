@@ -49,7 +49,7 @@ namespace FrostweepGames.WebGLPUNVoice
 		/// <summary>
 		/// Sets if transmission over network will be reliable or not
 		/// </summary>
-		public bool reliableTransmission = true;
+		public bool reliableTransmission = false;
 
 		/// <summary>
 		/// Sets network receivers in network, if enabled then sends also on this client, if not - only others
@@ -66,6 +66,12 @@ namespace FrostweepGames.WebGLPUNVoice
 		/// </summary>
 		private int _stopRecordPosition = -1;
 
+		public float averageVoiceLevel = 0f;
+
+		public double voiceDetectionTreshold = 0.2d;
+
+		public bool voiceDetectionEnabled = false;
+
 		/// <summary>
 		/// Initializes buffer, refreshes microphones list and selects first microphone device if exists
 		/// </summary>
@@ -79,16 +85,31 @@ namespace FrostweepGames.WebGLPUNVoice
 		/// <summary>
 		/// Handles processing of recording each frame
 		/// </summary>
-		private void Update()
+		private void LateUpdate()
 		{
 			ProcessRecording();
 		}
 
+		public bool Testing;
 		/// <summary>
 		/// Processes samples data from microphone recording and fills buffer of samples then sends it over network
 		/// </summary>
 		private void ProcessRecording()
 		{
+
+			bool recording = CustomMicrophone.IsRecording(_microphoneDevice);
+
+			if (recording && voiceDetectionEnabled) {
+				if (!CustomMicrophone.IsVoiceDetected(_microphoneDevice, _workingClip, ref averageVoiceLevel, voiceDetectionTreshold))
+					return;
+				
+			}
+
+				//Debug.Log(_microphoneDevice + $"\nVoice Detected: { CustomMicrophone.IsVoiceDetected(_microphoneDevice, _workingClip, ref averageVoiceLevel, voiceDetectionTreshold) }");
+
+
+			
+
 			int currentPosition = CustomMicrophone.GetPosition(_microphoneDevice);
 
 			// fix for end record incorrect position
@@ -98,6 +119,15 @@ namespace FrostweepGames.WebGLPUNVoice
 			if (recording || currentPosition != _lastPosition)
 			{
 				float[] array = new float[Constants.RecordingTime * Constants.SampleRate];
+
+				if (voiceDetectionEnabled && recording)
+				{
+					//Testing = CustomMicrophone.IsVoiceDetected(array, ref averageVoiceLevel, voiceDetectionTreshold);
+					//if (Testing)return;
+
+				}
+
+
 				CustomMicrophone.GetRawData(ref array, _workingClip);
 
 				if (_lastPosition != currentPosition && array.Length > 0)
@@ -196,6 +226,7 @@ namespace FrostweepGames.WebGLPUNVoice
 		/// </summary>
 		public void StartRecord()
 		{
+
 			if (CustomMicrophone.IsRecording(_microphoneDevice) || !CustomMicrophone.HasConnectedMicrophoneDevices())
 			{
 				RecordFailedEvent?.Invoke("record already started or no microphone device conencted");

@@ -4112,6 +4112,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: PhotonWebVoice
       objectReference: {fileID: 0}
+    - target: {fileID: 393551136777434354, guid: 770cef4903d510742b4bab88dc975b32, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 473757851317592581, guid: 770cef4903d510742b4bab88dc975b32, type: 3}
       propertyPath: startListenAtAwake
       value: 1
@@ -4163,6 +4167,18 @@ PrefabInstance:
     - target: {fileID: 7850493353477548324, guid: 770cef4903d510742b4bab88dc975b32, type: 3}
       propertyPath: debugEcho
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7850493353477548324, guid: 770cef4903d510742b4bab88dc975b32, type: 3}
+      propertyPath: reliableTransmission
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7850493353477548324, guid: 770cef4903d510742b4bab88dc975b32, type: 3}
+      propertyPath: voiceDetectionEnabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7850493353477548324, guid: 770cef4903d510742b4bab88dc975b32, type: 3}
+      propertyPath: voiceDetectionTreshold
+      value: 0.03
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 770cef4903d510742b4bab88dc975b32, type: 3}

@@ -13,12 +13,12 @@
         /// <summary>
         /// Default sample rate of microphone
         /// </summary>
-        public const int SampleRate = 22050;
+        public const int SampleRate = 8820;
 
         /// <summary>
         /// Size of block that sends over network
         /// </summary>
-        public const int ChunkSize = SampleRate / 4;
+        public const int ChunkSize = SampleRate / 8;
 
         /// <summary>
         /// Code of network event that uses for voice data transition

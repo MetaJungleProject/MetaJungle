@@ -51,6 +51,15 @@ public class SingletonDataManager : MonoBehaviour
 
     private void Start()
     {
+        // jigar
+        if (Application.platform != RuntimePlatform.WebGLPlayer)
+        {
+            if (QualitySettings.vSyncCount > 0)
+                Application.targetFrameRate = 60;
+            else
+                Application.targetFrameRate = -1;
+        }
+
         CustomMicrophone.RequestMicrophonePermission();
         CustomMicrophone.RefreshMicrophoneDevices();
 
@@ -60,8 +69,8 @@ public class SingletonDataManager : MonoBehaviour
         //JsonReader jr = JSON. JsonConvert.DeserializeObject(jsonData);
 
 
-        long tokenId = MoralisTools.ConvertStringToLong(jsonData);
-        Debug.Log(tokenId);
+        //long tokenId = MoralisTools.ConvertStringToLong(jsonData);
+       // Debug.Log(tokenId);
 
     }
 
