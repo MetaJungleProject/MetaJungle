@@ -154,6 +154,7 @@ namespace StarterAssets
 
         private void Update()
         {
+            if (UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject()) return;
             _hasAnimator = TryGetComponent(out _animator);
 
             JumpAndGravity();
@@ -163,6 +164,7 @@ namespace StarterAssets
 
         private void LateUpdate()
         {
+            if (UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject()) return;
             CameraRotation();
         }
 
