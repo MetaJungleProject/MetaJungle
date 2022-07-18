@@ -9,9 +9,19 @@ public class VirtualWorldManager : MonoBehaviour
     [SerializeField] Transform playerLocation;
     Transform playerLastLocation;
 
+    [SerializeField]
+    GameObject homeBtn;
+
+    [SerializeField]
+    GameObject myWorldBtn;
+
+
     // Start is called before the first frame update
     void OnEnable()
     {
+        homeBtn.SetActive(true);
+        myWorldBtn.SetActive(false);
+
         playerLastLocation = MetaManager.insta.myPlayer.transform;
 
         for (int i = 0; i < userworldObj.Count; i++)
@@ -49,6 +59,9 @@ public class VirtualWorldManager : MonoBehaviour
         //MetaManager.insta.myPlayer.transform.SetPositionAndRotation(playerLastLocation.position, playerLastLocation.rotation);
         MetaManager.insta.myPlayer.transform.position = playerLastLocation.position;
         MetaManager.insta.myPlayer.transform.rotation = playerLastLocation.rotation;
+
+        homeBtn.SetActive(false);
+        myWorldBtn.SetActive(true);
     }
     public void GoToOpenWorld()
     {

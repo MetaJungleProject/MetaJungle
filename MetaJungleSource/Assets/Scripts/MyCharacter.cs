@@ -367,6 +367,7 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
                     AudioManager.insta.playSound(7);
                     SingletonDataManager.userData.fightLose++;
                     SingletonDataManager.insta.UpdateUserDatabase();
+                    UIManager.insta.ShowResult(1);
                 }
             }
 
@@ -390,6 +391,7 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
                     AudioManager.insta.playSound(6);
                     SingletonDataManager.userData.fightWon++;
                     SingletonDataManager.insta.UpdateUserDatabase();
+                    UIManager.insta.ShowResult(0);
                 }
 
               
@@ -417,6 +419,7 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
                     showHealthBar(false);
                     ResetFight();
                     ResetWeapon();
+                    UIManager.insta.ShowResult(2);
                 }
 
             }

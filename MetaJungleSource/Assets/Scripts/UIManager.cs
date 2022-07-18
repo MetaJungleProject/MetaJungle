@@ -4,9 +4,11 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using FrostweepGames;
+
 public class UIManager : MonoBehaviour
 {
     public static UIManager insta;
+  
     [Header("GameplayMenu")]
     public  GameObject StartUI;
     public GameObject usernameUI;
@@ -45,6 +47,10 @@ public class UIManager : MonoBehaviour
     [SerializeField] Sprite[] listenerSprites; //0 on 1 off
 
 
+    [Header("Result")]
+    [SerializeField] Image resultImg;
+    [SerializeField] Sprite[] resultprites; //0 win 1 lose 2 tie
+
     public GameObject MyCollectionUIButton;
 
     [SerializeField] GameObject VirtualWorldObj;
@@ -56,6 +62,7 @@ public class UIManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        resultImg.gameObject.SetActive(false);
         StartUI.SetActive(true);
         usernameUI.SetActive(false);
         gender[0].interactable = false;
@@ -67,6 +74,20 @@ public class UIManager : MonoBehaviour
         UpdatePlayerUIData(true, true);
         UpdateUserName(SingletonDataManager.username, SingletonDataManager.userethAdd);
 
+    }
+
+    public void ShowResult(int _no) {
+
+        LeanTween.scale(resultImg.gameObject, Vector2.one, 1.5f).setFrom(Vector2.zero).setEaseOutBounce();
+        StartCoroutine(gameResult(_no));
+
+    }
+
+    IEnumerator gameResult(int _no) {
+        resultImg.gameObject.SetActive(true);
+        resultImg.sprite = resultprites[_no];
+        yield return new WaitForSeconds(3);
+        resultImg.gameObject.SetActive(false);
     }
 
     public void VisitVirtualWorld(bool _show) {
