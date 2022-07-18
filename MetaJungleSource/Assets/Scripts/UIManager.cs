@@ -7,8 +7,12 @@ using FrostweepGames;
 public class UIManager : MonoBehaviour
 {
     public static UIManager insta;
-    [SerializeField] GameObject usernameUI;
-    [SerializeField] TMP_Text usernameText;
+    [Header("GameplayMenu")]
+    public  GameObject StartUI;
+    public GameObject usernameUI;
+
+
+    public TMP_Text usernameText;
 
     [SerializeField] TMP_InputField nameInput;
     [SerializeField] Button[] gender;
@@ -24,7 +28,7 @@ public class UIManager : MonoBehaviour
     public static int usergender;
 
     [Header("GameplayMenu")]
-    [SerializeField] GameObject GameplayUI;
+    public GameObject GameplayUI;
     [SerializeField] TMP_Text scoreTxt;
     [SerializeField] TMP_Text winCountTxt;
     [SerializeField] TMP_Text lostCountTxt;
@@ -33,6 +37,18 @@ public class UIManager : MonoBehaviour
     [SerializeField] FrostweepGames.WebGLPUNVoice.Recorder recorder;
     [SerializeField] FrostweepGames.WebGLPUNVoice.Listener lister;
 
+
+    [Header("VoiceChat")]
+    [SerializeField] Image recorderImg;
+    [SerializeField] Image listenerImg;
+    [SerializeField] Sprite[] recorderSprites; //0 on 1 off
+    [SerializeField] Sprite[] listenerSprites; //0 on 1 off
+
+
+    public GameObject MyCollectionUIButton;
+
+    [SerializeField] GameObject VirtualWorldObj;
+
     private void Awake()
     {
         insta = this;
@@ -40,16 +56,33 @@ public class UIManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        usernameUI.SetActive(true);
+        StartUI.SetActive(true);
+        usernameUI.SetActive(false);
         gender[0].interactable = false;
         gender[1].interactable = true;
         statusText.gameObject.SetActive(true);
         statusText.text = "";
         healthSlider.value = 1;
 
-       UpdatePlayerUIData(true, true);
+        UpdatePlayerUIData(true, true);
         UpdateUserName(SingletonDataManager.username, SingletonDataManager.userethAdd);
 
+    }
+
+    public void VisitVirtualWorld(bool _show) {
+        if (_show)
+        {
+            SingletonDataManager.isMyVirtualWorld = true;
+            VirtualWorldObj.SetActive(true);
+        }
+        else {
+            VirtualWorldObj.SetActive(false);
+        }
+    }
+
+    public void StartGame() {
+        //StartUI.SetActive(false);
+        MPNetworkManager.insta.OnConnectedToServer();
     }
 
     public void UpdatePlayerUIData(bool _show, bool _init = false)
@@ -60,7 +93,7 @@ public class UIManager : MonoBehaviour
                 nameInput.text = SingletonDataManager.username;
                 SelectGender(SingletonDataManager.userData.characterNo);
             }
-            if (!GameplayUI.activeSelf) GameplayUI.SetActive(true);
+          
             scoreTxt.text = SingletonDataManager.userData.score.ToString();
             winCountTxt.text = SingletonDataManager.userData.fightWon.ToString();
             lostCountTxt.text = SingletonDataManager.userData.fightLose.ToString();
@@ -76,28 +109,39 @@ public class UIManager : MonoBehaviour
         if (recorder.recording)
         {
             recorder.recording = false;
+            recorderImg.sprite = recorderSprites[1];
         }
         else {
             recorder.recording = true;
+            recorderImg.sprite = recorderSprites[0];
         }
+
+        
     }
 
     public void MuteUnmuteListner() {
         if (lister._listening)
         {
             lister._listening = false;
+            listenerImg .sprite = listenerSprites[1];
         }
         else {
             lister._listening = true;
+            listenerImg.sprite = listenerSprites[0];
         }
     }
 
     public void openMyWorld() {
         UnityEngine.SceneManagement.SceneManager.LoadScene("VirtualWorld");
     }
-    public void UpdateUserName(string _name, string _ethad)
+    public void UpdateUserName(string _name, string _ethad = null)
     {
-        usernameText.text = "Hi, " + _name + "\n Your crypto address is : " + _ethad;
+        if (_ethad != null)
+        {
+            usernameText.text = "Hi, " + _name + "\n Your crypto address is : " + _ethad;
+            username = _name;
+        }
+        else usernameText.text = _name;
     }
 
     public void UpdateStatus(string _msg)
@@ -112,16 +156,23 @@ public class UIManager : MonoBehaviour
         statusText.text = "";
     }
 
+
+    public void EditUserProfile() {
+        usernameUI.SetActive(true);
+        StartUI.SetActive(false);
+    }
     public void GetName()
     {
         if (nameInput.text.Length > 0 && !nameInput.text.Contains("Enter")) username = nameInput.text;
         else username = "Player_" + Random.Range(11111, 99999);
 
-        usernameUI.SetActive(false);
+       
+            usernameUI.SetActive(false);
 
-        SingletonDataManager.insta.submitName(username);
+            SingletonDataManager.insta.submitName(username);
 
-        MPNetworkManager.insta.OnConnectedToServer();
+            StartUI.SetActive(true);
+        
     }
 
     public void SelectGender(int _no)

@@ -15,6 +15,7 @@ public class MPNetworkManager : MonoBehaviourPunCallbacks
 
     [SerializeField] FrostweepGames.WebGLPUNVoice.Recorder rec;
     [SerializeField] GameObject VoiceObj;
+
     private void Awake()
     {
         insta = this;
@@ -40,6 +41,7 @@ public class MPNetworkManager : MonoBehaviourPunCallbacks
         }
         Debug.Log("OnConnectedToServer");
         PhotonNetwork.ConnectUsingSettings();
+        UIManager.insta.UpdateUserName("Connecting to server");
     }
     public override void OnDisconnected(DisconnectCause cause)
     {
@@ -53,7 +55,7 @@ public class MPNetworkManager : MonoBehaviourPunCallbacks
     {
         Debug.Log("OnConnectedToMaster");
         base.OnConnectedToMaster();
-
+        UIManager.insta.UpdateUserName("Connected to server");
         //int KillScore = (int)PhotonNetwork.LocalPlayer.CustomProperties["role"];
         // KillScore++;
         // Hashtable hash = new Hashtable();
@@ -91,6 +93,7 @@ public class MPNetworkManager : MonoBehaviourPunCallbacks
     #region RandomRoom
     private void JoinRandomRoom()
     {
+        UIManager.insta.UpdateUserName("Entering to Meta Jungle");
         //int temoNo = Random.Range(0, 2);
         //Debug.Log("PlayerNo " + temoNo);
         Hashtable hash = new Hashtable();
@@ -156,12 +159,21 @@ public class MPNetworkManager : MonoBehaviourPunCallbacks
     public override void OnJoinedRoom()
     {
         // joined a room successfully, CreateRoom leads here on success
+        UIManager.insta.UpdateUserName("Ready to play !");
         Debug.Log("OnJoinedRoom");
         NPSpawner.GeneratePlayer();
         rec.RefreshMicrophones();
         rec.StartRecord();
-        
+        UIManager.insta.MuteUnmute();
+        if (!UIManager.insta.GameplayUI.activeSelf) UIManager.insta.GameplayUI.SetActive(true);
+        UIManager.insta.StartUI.SetActive(false);
         //rec.RefreshMicrophones();
+    }
+
+    public override void OnJoinRoomFailed(short returnCode, string message)
+    {
+        //base.OnJoinRoomFailed(returnCode, message);
+        UIManager.insta.UpdateUserName("Server error, unble to join");
     }
     #endregion
 

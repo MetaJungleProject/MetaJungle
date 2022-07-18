@@ -25,7 +25,7 @@ public class MetaManager : MonoBehaviour
     public static string _fighterid;
 
 
-
+ 
 
     private void Awake()
     {
@@ -47,6 +47,8 @@ public class MetaManager : MonoBehaviour
         PhotonNetwork.LocalPlayer.SetCustomProperties(hash);
         Debug.Log("Updated UpdatePlayerWorldProperties");
     }
+
+ 
 
 }
 

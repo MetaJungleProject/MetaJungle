@@ -87,7 +87,7 @@ namespace FrostweepGames.WebGLPUNVoice
 		/// </summary>
 		private void LateUpdate()
 		{
-			ProcessRecording();
+			if (recording) ProcessRecording();
 		}
 
 		public bool Testing;
@@ -97,7 +97,7 @@ namespace FrostweepGames.WebGLPUNVoice
 		private void ProcessRecording()
 		{
 
-			bool recording = CustomMicrophone.IsRecording(_microphoneDevice);
+			//bool recording = CustomMicrophone.IsRecording(_microphoneDevice);
 
 			if (recording && voiceDetectionEnabled) {
 				if (!CustomMicrophone.IsVoiceDetected(_microphoneDevice, _workingClip, ref averageVoiceLevel, voiceDetectionTreshold))

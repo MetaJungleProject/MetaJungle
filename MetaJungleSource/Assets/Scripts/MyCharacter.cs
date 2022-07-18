@@ -22,9 +22,10 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
     [SerializeField] GameObject[] myPlayers;
     [SerializeField] TMP_Text usernameText;
     int playerNo;
-    public PhotonView pview;
+    PhotonView pview;
     [SerializeField] GameObject meetObj;
 
+    [SerializeField] GameObject virtualWorldUI;
     [SerializeField] GameObject meetUI;
 
     [SerializeField] GameObject WeaponCollider;
@@ -49,12 +50,12 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
     private void Awake()
     {
         WeaponCollider.SetActive(false);
-        pview = GetComponent<PhotonView>();
+       
     }
     private void Start()
     {
 
-        
+        pview = GetComponent<PhotonView>();
         _inputs = GetComponentInParent<StarterAssetsInputs>();
         _customInput = new StarterAssets.StarterAssets();
         _customInput.Player.Enable();
@@ -72,6 +73,7 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
 
         }
         meetUI.SetActive(false);
+        virtualWorldUI.SetActive(false);
         showHealthBar(false);
 
         playerNo = int.Parse(pview.Owner.CustomProperties["char_no"].ToString());
@@ -100,6 +102,9 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
 
         meetUI.transform.LookAt(MetaManager.insta.myCam.transform);
         meetUI.transform.rotation = Quaternion.LookRotation(MetaManager.insta.myCam.transform.forward);
+
+        virtualWorldUI.transform.LookAt(MetaManager.insta.myCam.transform);
+        virtualWorldUI.transform.rotation = Quaternion.LookRotation(MetaManager.insta.myCam.transform.forward);
 
 
     }
@@ -163,6 +168,7 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
                 {
                     Debug.Log("Meet him");
                     meetUI.SetActive(true);
+                    virtualWorldUI.SetActive(true);
                 }
             }
         }
@@ -223,6 +229,7 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
             {
                 Debug.Log("Meet bye");
                 meetUI.SetActive(false);
+                virtualWorldUI.SetActive(false);
             }
         }
     }
