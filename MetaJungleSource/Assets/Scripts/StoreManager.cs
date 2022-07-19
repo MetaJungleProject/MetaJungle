@@ -15,6 +15,7 @@ public class StoreManager : MonoBehaviour
     //purcahse panel stuff
     [SerializeField] RawImage purchaseItemImg;
     [SerializeField] TMP_Text purchaseItemText;
+    [SerializeField] TMP_Text purchaseItemCostText;
 
     int currentSelectedItem = -1;
 
@@ -27,8 +28,11 @@ public class StoreManager : MonoBehaviour
         insta = this;
     }
 
+    
+
     private void OnEnable()
     {
+        ClosePurchasePanel();
         /*for (int i = 0; i < itemButtons.Length; i++) {
             if (SingletonDataManager.metanftlocalData[i].imageTexture) {
                 itemButtons[i].GetComponent<RawImage>().texture = SingletonDataManager.metanftlocalData[i].imageTexture;
@@ -49,13 +53,14 @@ public class StoreManager : MonoBehaviour
         for (int i = 0; i < SingletonDataManager.metanftlocalData.Count; i++)
         {
             bool check = false;
-            for (int j = 0; i < SingletonDataManager.myNFTData.Count; j++)
+            for (int j = 0; j < SingletonDataManager.myNFTData.Count; j++)
             {
                 //Debug.Log("checkID " + SingletonDataManager.myNFTData[i].itemid);
-                if (SingletonDataManager.myNFTData[i].itemid == i)
+                if (SingletonDataManager.myNFTData[j].itemid == i)
                 {
                     check = true;
-                    continue;
+                    //break;
+                    //continue;
                 }
             }
 
@@ -82,7 +87,9 @@ public class StoreManager : MonoBehaviour
         itemPurchaseUI.SetActive(true);
         purchaseItemImg.texture = _texture;// itemButtons[_no].GetComponent<RawImage>().texture;
         purchaseItemText.text = SingletonDataManager.metanftlocalData[_no].description;
-        
+        purchaseItemCostText.text = SingletonDataManager.metanftlocalData[_no].cost.ToString();
+
+
     }
 
     public void purchaseItem()

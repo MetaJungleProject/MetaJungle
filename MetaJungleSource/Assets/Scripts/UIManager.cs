@@ -62,6 +62,7 @@ public class UIManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        GameplayUI.SetActive(false);
         resultImg.gameObject.SetActive(false);
         StartUI.SetActive(true);
         usernameUI.SetActive(false);

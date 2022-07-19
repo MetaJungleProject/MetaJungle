@@ -28,7 +28,7 @@ public class MyNFTCollection : MonoBehaviour
 
     private void OnEnable()
     {
-
+        ClosePurchasePanel();
         foreach (GameObject g in itemParent) {
             Destroy(g);
         }
