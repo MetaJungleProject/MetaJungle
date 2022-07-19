@@ -3,6 +3,7 @@ using Photon.Pun;
 using Photon.Realtime;
 using StarterAssets;
 using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -50,7 +51,7 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
     private void Awake()
     {
         WeaponCollider.SetActive(false);
-       
+
     }
     private void Start()
     {
@@ -155,14 +156,14 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
         yield return new WaitForSeconds(0.31f);
         myAnim.SetBool("attack", false);
     }
-   
+
 
     bool _waitToReattack = false;
     private void OnTriggerEnter(Collider other)
     {
         if (!MetaManager.isFighting)
         {
-            if (!pview.IsMine && (bool)pview.Owner.CustomProperties["isfighting"] == false)
+            if (!pview.IsMine && (bool)pview.Owner.CustomProperties["isfighting"] == false && !MetaManager.inVirtualWorld)
             {
                 if (other.CompareTag("Meet"))
                 {
@@ -254,7 +255,7 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
     {
         if (pview.IsMine) MetaManager.isFighting = false;
         weapons[currentWeapon].transform.parent = weaponObj.transform;
-       // weapons[currentWeapon].transform.localPosition = weaponLastPoz;
+        // weapons[currentWeapon].transform.localPosition = weaponLastPoz;
         //weapons[currentWeapon].transform.localRotation = weaponLastRot;
 
         weapons[currentWeapon].SetActive(false);
@@ -278,6 +279,19 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
         Debug.Log("RequestFight My " + MetaManager.insta.myPlayer.GetComponent<PhotonView>().Owner.UserId + " | figher " + MetaManager._fighterid);
 
         UIManager.insta.UpdateStatus("Fight request sent to\n" + pview.Owner.NickName);
+    }
+
+    public void VisitVirtualWorld()
+    {
+
+        if (SingletonDataManager.insta.otherPlayerNFTData != null) SingletonDataManager.insta.otherPlayerNFTData.Clear();
+        SingletonDataManager.insta.otherPlayerNFTData = Newtonsoft.Json.JsonConvert.DeserializeObject<List<MyMetadataNFT>>(pview.Owner.CustomProperties["virtualworld"].ToString());
+        Debug.Log("data" + pview.Owner.CustomProperties["virtualworld"].ToString());
+
+        if (SingletonDataManager.insta.otherPlayerNFTData != null) UIManager.insta.VisitOtherPlayerVirtualWorld();
+        else Debug.Log("No data");
+
+
 
     }
     [PunRPC]
@@ -357,7 +371,7 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
             else
             {
                 showHealthBar(false);
-               
+
                 ResetWeapon();
                 ResetFight();
 
@@ -371,7 +385,7 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
                 }
             }
 
-           
+
         }
     }
     #endregion
@@ -394,11 +408,11 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
                     UIManager.insta.ShowResult(0);
                 }
 
-              
+
                 showHealthBar(false);
                 ResetFight();
                 ResetWeapon();
-             
+
             }
 
         }
@@ -408,7 +422,8 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
     {
         //base.OnPlayerLeftRoom(otherPlayer);
 
-        if (pview.IsMine) {
+        if (pview.IsMine)
+        {
             if (otherPlayer.UserId.Equals(MetaManager._fighterid))
             {
                 if ((bool)otherPlayer.CustomProperties["isfighting"] && healthUI.activeSelf)
@@ -450,7 +465,7 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
     //
     public void OnEvent(EventData photonEvent)
     {
-        
+
         byte eventCode = photonEvent.Code;
         if (eventCode == FightEventCode)
         {

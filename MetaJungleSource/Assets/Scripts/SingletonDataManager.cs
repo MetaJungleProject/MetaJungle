@@ -21,7 +21,7 @@ public class SingletonDataManager : MonoBehaviour
     [SerializeField]
     public static List<MetaJungleNFTLocal> metanftlocalData = new List<MetaJungleNFTLocal>();
     public static List<MyMetadataNFT> myNFTData = new List<MyMetadataNFT>();
-    public static List<MyMetadataNFT> otherPlayerNFTData = new List<MyMetadataNFT>();
+    public List<MyMetadataNFT> otherPlayerNFTData = new List<MyMetadataNFT>();
     public static bool isMyVirtualWorld = true;
 
     public string contract_abi;
@@ -312,6 +312,7 @@ public class SingletonDataManager : MonoBehaviour
         if (myNFTData.Count > 0) {
             if (MetaManager.insta) {
                 MetaManager.insta.UpdatePlayerWorldProperties();
+                Debug.Log("We UpdatePlayerWorldProperties");
             }
         }
     }

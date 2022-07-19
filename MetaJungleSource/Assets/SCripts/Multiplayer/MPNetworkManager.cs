@@ -2,7 +2,6 @@ using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine;
 using Hashtable = ExitGames.Client.Photon.Hashtable;
-using FrostweepGames;
 public class MPNetworkManager : MonoBehaviourPunCallbacks
 {
     public static MPNetworkManager insta;
@@ -161,13 +160,20 @@ public class MPNetworkManager : MonoBehaviourPunCallbacks
         // joined a room successfully, CreateRoom leads here on success
         UIManager.insta.UpdateUserName("Ready to play !");
         Debug.Log("OnJoinedRoom");
+
+        //rec.RefreshMicrophones();
+        StartGameCall();
+    }
+
+    void StartGameCall()
+    {
         NPSpawner.GeneratePlayer();
         rec.RefreshMicrophones();
         rec.StartRecord();
         UIManager.insta.MuteUnmute();
+        MetaManager.insta.UpdatePlayerWorldProperties();
         if (!UIManager.insta.GameplayUI.activeSelf) UIManager.insta.GameplayUI.SetActive(true);
         UIManager.insta.StartUI.SetActive(false);
-        //rec.RefreshMicrophones();
     }
 
     public override void OnJoinRoomFailed(short returnCode, string message)

@@ -7,6 +7,10 @@ public class VirtualWorldManager : MonoBehaviour
     [SerializeField]
     List<GameObject> userworldObj = new List<GameObject>();
     [SerializeField] Transform playerLocation;
+
+    Vector3 playerPoz;
+    Quaternion playerRot;
+
     Vector3 playerLastPoz;
     Quaternion playerLastRot;
 
@@ -16,10 +20,17 @@ public class VirtualWorldManager : MonoBehaviour
     [SerializeField]
     GameObject myWorldBtn;
 
+    private void Awake()
+    {
+       
+    }
 
     // Start is called before the first frame update
     void OnEnable()
     {
+        playerPoz = playerLocation.position;
+        playerRot = playerLocation.rotation;
+
         homeBtn.SetActive(true);
         myWorldBtn.SetActive(false);
 
@@ -31,6 +42,8 @@ public class VirtualWorldManager : MonoBehaviour
             userworldObj[i].SetActive(false);
             if (SingletonDataManager.isMyVirtualWorld)
             {
+
+
                 for (int j = 0; j < SingletonDataManager.myNFTData.Count; j++)
                 {
                     if (SingletonDataManager.myNFTData[j].itemid == i)
@@ -41,9 +54,9 @@ public class VirtualWorldManager : MonoBehaviour
             }
             else
             {
-                for (int j = 0; j < SingletonDataManager.otherPlayerNFTData.Count; j++)
+                for (int j = 0; j < SingletonDataManager.insta.otherPlayerNFTData.Count; j++)
                 {
-                    if (SingletonDataManager.otherPlayerNFTData[j].itemid == i)
+                    if (SingletonDataManager.insta.otherPlayerNFTData[j].itemid == i)
                     {
                         userworldObj[i].SetActive(true);
                     }
@@ -51,16 +64,18 @@ public class VirtualWorldManager : MonoBehaviour
             }
         }
 
-        MetaManager.insta.myPlayer.transform.position = playerLocation.position;
-        MetaManager.insta.myPlayer.transform.rotation = playerLocation.rotation;
+        MetaManager.insta.myPlayer.transform.position = playerPoz;
+        MetaManager.insta.myPlayer.transform.rotation = playerRot;
     }
 
 
     private void OnDisable()
     {
+
         //MetaManager.insta.myPlayer.transform.SetPositionAndRotation(playerLastLocation.position, playerLastLocation.rotation);
         MetaManager.insta.myPlayer.transform.position = playerLastPoz;
         MetaManager.insta.myPlayer.transform.rotation = playerLastRot;
+
 
         homeBtn.SetActive(false);
         myWorldBtn.SetActive(true);

@@ -3,14 +3,13 @@ using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using FrostweepGames;
 
 public class UIManager : MonoBehaviour
 {
     public static UIManager insta;
-  
+
     [Header("GameplayMenu")]
-    public  GameObject StartUI;
+    public GameObject StartUI;
     public GameObject usernameUI;
 
 
@@ -53,7 +52,7 @@ public class UIManager : MonoBehaviour
 
     public GameObject MyCollectionUIButton;
 
-    [SerializeField] GameObject VirtualWorldObj;
+    public GameObject VirtualWorldObj;
 
     private void Awake()
     {
@@ -77,32 +76,66 @@ public class UIManager : MonoBehaviour
 
     }
 
-    public void ShowResult(int _no) {
+    public void ShowResult(int _no)
+    {
 
         LeanTween.scale(resultImg.gameObject, Vector2.one, 1.5f).setFrom(Vector2.zero).setEaseOutBounce();
         StartCoroutine(gameResult(_no));
 
     }
 
-    IEnumerator gameResult(int _no) {
+    IEnumerator gameResult(int _no)
+    {
         resultImg.gameObject.SetActive(true);
         resultImg.sprite = resultprites[_no];
         yield return new WaitForSeconds(3);
         resultImg.gameObject.SetActive(false);
     }
 
-    public void VisitVirtualWorld(bool _show) {
-        if (_show)
+    public void VisitVirtualWorld(bool _show)
+    {
+
+        if (_show && !MetaManager.inVirtualWorld && !MetaManager.isFighting)
         {
-            SingletonDataManager.isMyVirtualWorld = true;
-            VirtualWorldObj.SetActive(true);
+            if (SingletonDataManager.myNFTData.Count > 0)
+            {
+                SingletonDataManager.isMyVirtualWorld = true;
+                VirtualWorldObj.SetActive(true);
+                MetaManager.inVirtualWorld = true;
+            }
+            else
+            {
+                Debug.Log("No enough nft");
+            }
         }
-        else {
+        else
+        {
+            MetaManager.inVirtualWorld = false;
             VirtualWorldObj.SetActive(false);
+        }
+
+    }
+
+
+    public void VisitOtherPlayerVirtualWorld()
+    {
+
+        if (SingletonDataManager.insta.otherPlayerNFTData.Count > 0)
+        {
+            Debug.Log("Virtual world available");
+            SingletonDataManager.isMyVirtualWorld = false;
+            VirtualWorldObj.SetActive(true);
+            MetaManager.inVirtualWorld = true;
+        }
+        else
+        {
+            MetaManager.inVirtualWorld = false;
+            Debug.Log("Virtual world NOT available");
         }
     }
 
-    public void StartGame() {
+    public void StartGame()
+    {
         //StartUI.SetActive(false);
         MPNetworkManager.insta.OnConnectedToServer();
     }
@@ -111,15 +144,16 @@ public class UIManager : MonoBehaviour
     {
         if (_show)
         {
-            if (_init) {
+            if (_init)
+            {
                 nameInput.text = SingletonDataManager.username;
                 SelectGender(SingletonDataManager.userData.characterNo);
             }
-          
+
             scoreTxt.text = SingletonDataManager.userData.score.ToString();
             winCountTxt.text = SingletonDataManager.userData.fightWon.ToString();
             lostCountTxt.text = SingletonDataManager.userData.fightLose.ToString();
-            if(PhotonNetwork.LocalPlayer.CustomProperties["health"] != null) healthSlider.value = float.Parse(PhotonNetwork.LocalPlayer.CustomProperties["health"].ToString());
+            if (PhotonNetwork.LocalPlayer.CustomProperties["health"] != null) healthSlider.value = float.Parse(PhotonNetwork.LocalPlayer.CustomProperties["health"].ToString());
         }
         else
         {
@@ -127,33 +161,38 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    public void MuteUnmute() {
+    public void MuteUnmute()
+    {
         if (recorder.recording)
         {
             recorder.recording = false;
             recorderImg.sprite = recorderSprites[1];
         }
-        else {
+        else
+        {
             recorder.recording = true;
             recorderImg.sprite = recorderSprites[0];
         }
 
-        
+
     }
 
-    public void MuteUnmuteListner() {
+    public void MuteUnmuteListner()
+    {
         if (lister._listening)
         {
             lister._listening = false;
-            listenerImg .sprite = listenerSprites[1];
+            listenerImg.sprite = listenerSprites[1];
         }
-        else {
+        else
+        {
             lister._listening = true;
             listenerImg.sprite = listenerSprites[0];
         }
     }
 
-    public void openMyWorld() {
+    public void openMyWorld()
+    {
         UnityEngine.SceneManagement.SceneManager.LoadScene("VirtualWorld");
     }
     public void UpdateUserName(string _name, string _ethad = null)
@@ -179,7 +218,8 @@ public class UIManager : MonoBehaviour
     }
 
 
-    public void EditUserProfile() {
+    public void EditUserProfile()
+    {
         usernameUI.SetActive(true);
         StartUI.SetActive(false);
     }
@@ -188,13 +228,13 @@ public class UIManager : MonoBehaviour
         if (nameInput.text.Length > 0 && !nameInput.text.Contains("Enter")) username = nameInput.text;
         else username = "Player_" + Random.Range(11111, 99999);
 
-       
-            usernameUI.SetActive(false);
 
-            SingletonDataManager.insta.submitName(username);
+        usernameUI.SetActive(false);
 
-            StartUI.SetActive(true);
-        
+        SingletonDataManager.insta.submitName(username);
+
+        StartUI.SetActive(true);
+
     }
 
     public void SelectGender(int _no)
