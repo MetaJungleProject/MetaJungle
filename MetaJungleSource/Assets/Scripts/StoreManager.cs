@@ -49,11 +49,17 @@ public class StoreManager : MonoBehaviour
         for (int i = 0; i < SingletonDataManager.metanftlocalData.Count; i++)
         {
             bool check = false;
-            for (int j = 0; i < SingletonDataManager.myNFTData.Count; i++)
+            for (int j = 0; i < SingletonDataManager.myNFTData.Count; j++)
             {
-                if (SingletonDataManager.myNFTData[j].itemid == i) check = true;
+                //Debug.Log("checkID " + SingletonDataManager.myNFTData[i].itemid);
+                if (SingletonDataManager.myNFTData[i].itemid == i)
+                {
+                    check = true;
+                    continue;
+                }
             }
 
+            //Debug.Log("check " + check + " | " + i);
             if (!check)
             {
                 var temp = Instantiate(itemButtonPrefab, itemParent);
