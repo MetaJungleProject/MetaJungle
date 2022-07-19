@@ -53,27 +53,6 @@ public class SingletonDataManager : MonoBehaviour
     private void Start()
     {
 
-        long currentTime = DateTime.Now.Ticks;
-        var _currentTokenId = new System.Numerics.BigInteger(currentTime);
-
-        Debug.Log("Check " + _currentTokenId.ToString());
-
-        byte[] data3 = Array.Empty<byte>();
-        string data2 = "[]";
-
-        string[] test = new string[0];
-        data = new byte[0];
-
-        object[] parameters = {
-            data2,
-            data,
-            test
-        };
-
-
-        Debug.Log("DataTRansfer " + JsonConvert.SerializeObject(parameters));
-
-
         // jigar
         if (Application.platform != RuntimePlatform.WebGLPlayer)
         {

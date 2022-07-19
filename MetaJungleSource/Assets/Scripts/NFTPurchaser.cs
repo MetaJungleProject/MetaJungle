@@ -171,27 +171,36 @@ public class NFTPurchaser : MonoBehaviour
     // We are minting the NFT and transferring it to the player
     private async Task<string> PurchaseItemFromContract( string metadataUrl)
     {
-        byte[] data = Array.Empty<byte>();
 
-        string data2 = "[]";
-
-        string[] test = new string[0];
-
-        long currentTime = DateTime.Now.Ticks;
+#if UNITY_WEBGL
+        string[] data = new string[0];
+         long currentTime = DateTime.Now.Ticks;
         _currentTokenId = new BigInteger(currentTime);
+
         object[] parameters = {
             _currentTokenId.ToString(),
             metadataUrl,
-            test
+            data
         };
+#else
+        byte[] data = Array.Empty<byte>();
+        long currentTime = DateTime.Now.Ticks;
+        _currentTokenId = new BigInteger(currentTime);
+
+        object[] parameters = {
+            _currentTokenId.ToString("x"),
+            metadataUrl,
+            data
+        };
+#endif
 
         // Set gas estimate
         HexBigInteger value = new HexBigInteger(0);
         HexBigInteger gas = new HexBigInteger(0);
         HexBigInteger gasPrice = new HexBigInteger(0);
 
-        Debug.Log("DataTRansfer " + JsonConvert.SerializeObject(parameters));
-            ;
+        //Debug.Log("DataTRansfer " + JsonConvert.SerializeObject(parameters));
+            
 
         string resp = await Moralis.ExecuteContractFunction(SingletonDataManager.insta.contract_ethAddress, SingletonDataManager.contract_abi, "buyItem", parameters, value, gas, gasPrice);
 
