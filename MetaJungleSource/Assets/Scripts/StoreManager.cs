@@ -96,13 +96,20 @@ public class StoreManager : MonoBehaviour
     {
         Debug.Log("purchaseItem");
         MetadataNFT meta = new MetadataNFT();
-        meta.itemid = SingletonDataManager.metanftlocalData[currentSelectedItem].itemid;
-        meta.name = SingletonDataManager.metanftlocalData[currentSelectedItem].name;
-        meta.description = SingletonDataManager.metanftlocalData[currentSelectedItem].description;
-        meta.image = SingletonDataManager.metanftlocalData[currentSelectedItem].imageurl;
-        //meta.itemid = SingletonDataManager.metanftlocalData[currentSelectedItem].
+        if (SingletonDataManager.userData.score >= SingletonDataManager.metanftlocalData[currentSelectedItem].cost)
+        {
+            meta.itemid = SingletonDataManager.metanftlocalData[currentSelectedItem].itemid;
+            meta.name = SingletonDataManager.metanftlocalData[currentSelectedItem].name;
+            meta.description = SingletonDataManager.metanftlocalData[currentSelectedItem].description;
+            meta.image = SingletonDataManager.metanftlocalData[currentSelectedItem].imageurl;
+            //meta.itemid = SingletonDataManager.metanftlocalData[currentSelectedItem].
 
-        NFTPurchaser.insta.StartCoroutine(NFTPurchaser.insta.UploadNFTMetadata(Newtonsoft.Json.JsonConvert.SerializeObject(meta)));
+            NFTPurchaser.insta.StartCoroutine(NFTPurchaser.insta.UploadNFTMetadata(Newtonsoft.Json.JsonConvert.SerializeObject(meta), SingletonDataManager.metanftlocalData[currentSelectedItem].cost));
+        }
+        else {
+            Debug.Log("not enough money");
+            MessaeBox.insta.showMsg("No enough coins\nFight to earn coins", true);
+        }
     }
 
     public void ClosePurchasePanel()

@@ -285,24 +285,6 @@ public class SingletonDataManager : MonoBehaviour
                 Debug.Log("PopulatePlayerItem " + nftOwners[i].TokenId + " | " + formattedMetaData.ToJson());
             }
 
-            /* foreach (var nftOwner in nftOwners)
-             {
-                 if (nftOwner.Metadata == null)
-                 {
-                     // Sometimes GetNFTsForContract fails to get NFT Metadata. We need to re-sync
-                     //Moralis.GetClient().Web3Api.Token.ReSyncMetadata(nftOwner.TokenAddress, nftOwner.TokenId, ContractChain);
-                     Debug.Log("We couldn't get NFT Metadata. Re-syncing...");
-                     //continue;
-                 }
-                 if (nftOwner.Metadata != null)
-                 {
-                     var nftMetaData = nftOwner.Metadata;
-                     NftMetadata formattedMetaData = JsonUtility.FromJson<NftMetadata>(nftMetaData);
-                     Debug.Log(nftOwner.TokenId + " nftMetaData " + JsonConvert.DeserializeObject(nftMetaData));
-                     //PopulatePlayerItem(nftOwner.TokenId, formattedMetaData);
-                     Debug.Log("PopulatePlayerItem " + nftOwner.TokenId + " | " + formattedMetaData.ToJson());
-                 }
-             }*/
         }
         catch (Exception exp)
         {

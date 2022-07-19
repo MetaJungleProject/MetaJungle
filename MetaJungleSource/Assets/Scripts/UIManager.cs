@@ -90,6 +90,8 @@ public class UIManager : MonoBehaviour
         resultImg.sprite = resultprites[_no];
         yield return new WaitForSeconds(3);
         resultImg.gameObject.SetActive(false);
+
+        if(_no == 0) MessaeBox.insta.showMsg("Earned 1 coin", true);
     }
 
     public void VisitVirtualWorld(bool _show)
@@ -106,6 +108,7 @@ public class UIManager : MonoBehaviour
             else
             {
                 Debug.Log("No enough nft");
+                MessaeBox.insta.showMsg("No virtual world item\nFight to earn coins and buy item", true);
             }
         }
         else
@@ -131,6 +134,7 @@ public class UIManager : MonoBehaviour
         {
             MetaManager.inVirtualWorld = false;
             Debug.Log("Virtual world NOT available");
+            MessaeBox.insta.showMsg("No virtual world item", true);
         }
     }
 

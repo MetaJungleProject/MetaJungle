@@ -34,8 +34,9 @@ public class NFTPurchaser : MonoBehaviour
 
 
 
-    public IEnumerator UploadNFTMetadata(string _metadata)
+    public IEnumerator UploadNFTMetadata(string _metadata, int cost)
     {
+        MessaeBox.insta.showMsg("NFT purchase process started\nThis can up to minute", false);
         Debug.Log("Creating and saving metadata to IPFS...");
         WWWForm form = new WWWForm();
         form.AddField("meta", _metadata);
@@ -43,13 +44,14 @@ public class NFTPurchaser : MonoBehaviour
         using (UnityWebRequest www = UnityWebRequest.Post("https://api.nft.storage/store", form))
         {
             www.SetRequestHeader("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweDZBNDA4Q0ZiOTJDNDlCYjk3ZDhENDg4NUE3MGE3NkNhOWVBYUIyNjIiLCJpc3MiOiJuZnQtc3RvcmFnZSIsImlhdCI6MTY1Nzg3NDg0ODU1MywibmFtZSI6Ik1ldGFKdW5nbGUifQ.DHiD9jVmKkMJQaZtF6WLUO7QpGwnXiAi2s4l_Lt_BRA");
-
+            www.timeout = 70;
             yield return www.SendWebRequest();
 
             if (www.result != UnityWebRequest.Result.Success)
             {
                 Debug.Log(www.error);
                 Debug.Log("UploadNFTMetadata upload error " + www.downloadHandler.text);
+                MessaeBox.insta.showMsg("Server error\nPlease try again", true);
             }
             else
             {
@@ -61,7 +63,7 @@ public class NFTPurchaser : MonoBehaviour
                     //Debug.Log("Predata " + j.GetField("value").GetField("ipnft").stringValue);
                     SingletonDataManager.nftmetaCDI = j.GetField("value").GetField("url").stringValue; //ipnft
                     Debug.Log("Metadata saved successfully");
-                    PurchaseItem();
+                    PurchaseItem(cost);
                 }
             }
         }
@@ -114,7 +116,7 @@ public class NFTPurchaser : MonoBehaviour
     }
 
 
-    public async void PurchaseItem()
+    public async void PurchaseItem(int cost)
     {
         PurchaseStarted?.Invoke();
 
@@ -129,7 +131,7 @@ public class NFTPurchaser : MonoBehaviour
         long tokenId = MoralisTools.ConvertStringToLong(SingletonDataManager.nftmetaCDI);
 
         //transactionInfoText.text = "Please confirm transaction in your wallet";
-
+        MessaeBox.insta.showMsg("Please confirm transaction in your wallet", false);
         Debug.Log("Please confirm transaction in your wallet " + tokenId);
         var result = await PurchaseItemFromContract(tokenId, metadataUrl);
 
@@ -138,12 +140,20 @@ public class NFTPurchaser : MonoBehaviour
             // transactionInfoText.text = "Transaction failed";
             // StartCoroutine(DisableInfoText());
             Debug.Log("Transaction failed!");
+            MessaeBox.insta.showMsg("Transaction failed!", true);
             PurchaseFailed?.Invoke();
             return;
         }
         Debug.Log("Transaction completed! " + result.ToString());
-       // transactionInfoText.text = "Transaction completed!";
-       // StartCoroutine(DisableInfoText());
+
+        //reudce coins
+        SingletonDataManager.userData.score = SingletonDataManager.userData.score - cost;
+        SingletonDataManager.insta.UpdateUserDatabase();
+        MessaeBox.insta.showMsg("Transaction completed!\nClose this window and go to my collection button", true);
+        // transactionInfoText.text = "Transaction completed!";
+        // StartCoroutine(DisableInfoText());
+
+        SingletonDataManager.insta.LoadPurchasedItems();
 
         PurchaseCompleted?.Invoke(SingletonDataManager.nftmetaCDI);
         SingletonDataManager.nftmetaCDI = null;

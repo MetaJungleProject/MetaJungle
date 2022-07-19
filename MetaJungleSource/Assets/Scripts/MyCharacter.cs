@@ -289,7 +289,7 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
         Debug.Log("data" + pview.Owner.CustomProperties["virtualworld"].ToString());
 
         if (SingletonDataManager.insta.otherPlayerNFTData != null) UIManager.insta.VisitOtherPlayerVirtualWorld();
-        else Debug.Log("No data");
+        else MessaeBox.insta.showMsg("No virtual world item", true);
 
 
 
@@ -404,6 +404,7 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
                     Debug.Log("User Winner");
                     AudioManager.insta.playSound(6);
                     SingletonDataManager.userData.fightWon++;
+                    SingletonDataManager.userData.score++;
                     SingletonDataManager.insta.UpdateUserDatabase();
                     UIManager.insta.ShowResult(0);
                 }
