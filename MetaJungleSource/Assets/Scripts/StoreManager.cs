@@ -28,7 +28,7 @@ public class StoreManager : MonoBehaviour
         insta = this;
     }
 
-    
+
 
     private void OnEnable()
     {
@@ -53,6 +53,7 @@ public class StoreManager : MonoBehaviour
         for (int i = 0; i < SingletonDataManager.metanftlocalData.Count; i++)
         {
             bool check = false;
+            bool unlocked = false;
             for (int j = 0; j < SingletonDataManager.myNFTData.Count; j++)
             {
                 //Debug.Log("checkID " + SingletonDataManager.myNFTData[i].itemid);
@@ -62,6 +63,7 @@ public class StoreManager : MonoBehaviour
                     //break;
                     //continue;
                 }
+                if (SingletonDataManager.myNFTData[j].itemid == 0) unlocked = true;
             }
 
             //Debug.Log("check " + check + " | " + i);
@@ -73,6 +75,8 @@ public class StoreManager : MonoBehaviour
                 var tempNo = i;
                 var tempTexture = SingletonDataManager.metanftlocalData[i].imageTexture;
                 temp.GetComponent<Button>().onClick.AddListener(() => SelectItem(tempNo, tempTexture));
+
+                if (!unlocked && i != 0) temp.GetComponent<Button>().interactable = false;
             }
         }
         //SingletonDataManager.insta.LoadPurchasedItems();
@@ -106,7 +110,8 @@ public class StoreManager : MonoBehaviour
 
             NFTPurchaser.insta.StartCoroutine(NFTPurchaser.insta.UploadNFTMetadata(Newtonsoft.Json.JsonConvert.SerializeObject(meta), SingletonDataManager.metanftlocalData[currentSelectedItem].cost));
         }
-        else {
+        else
+        {
             Debug.Log("not enough money");
             MessaeBox.insta.showMsg("No enough coins\nFight to earn coins", true);
         }

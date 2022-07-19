@@ -46,6 +46,10 @@ public class UIManager : MonoBehaviour
     [SerializeField] Sprite[] listenerSprites; //0 on 1 off
 
 
+    [Header("StoreAndCollection")]
+    [SerializeField] GameObject myCollectionUI;
+
+
     [Header("Result")]
     [SerializeField] Image resultImg;
     [SerializeField] Sprite[] resultprites; //0 win 1 lose 2 tie
@@ -76,6 +80,21 @@ public class UIManager : MonoBehaviour
 
     }
 
+
+    public void ShowMyCollection(bool _show)
+    {
+        if (_show)
+        {
+            if (SingletonDataManager.myNFTData.Count > 0)
+                myCollectionUI.SetActive(true);
+            else MessaeBox.insta.showMsg("Nothing in collection", true);
+        }
+        else
+        {
+            myCollectionUI.SetActive(false);
+        }
+
+    }
     public void ShowResult(int _no)
     {
 
@@ -91,7 +110,12 @@ public class UIManager : MonoBehaviour
         yield return new WaitForSeconds(3);
         resultImg.gameObject.SetActive(false);
 
-        if(_no == 0) MessaeBox.insta.showMsg("Earned 1 coin", true);
+        if (_no == 0)
+        {
+            if (SingletonDataManager.myNFTData.Count == 0)
+                MessaeBox.insta.showMsg("Get land for your virtual world from store", true);
+            else MessaeBox.insta.showMsg("Earned 1 coin", true);
+        }
     }
 
     public void VisitVirtualWorld(bool _show)
