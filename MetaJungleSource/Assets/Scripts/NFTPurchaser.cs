@@ -157,7 +157,7 @@ public class NFTPurchaser : MonoBehaviour
         //reudce coins
         SingletonDataManager.userData.score = SingletonDataManager.userData.score - cost;
         SingletonDataManager.insta.UpdateUserDatabase();
-        MessaeBox.insta.showMsg("Transaction completed!\nClose this window and go to my collection button", true);
+        MessaeBox.insta.showMsg("Transaction completed!\nTransaction can take some time to complete on blockchain", true);
         // transactionInfoText.text = "Transaction completed!";
         // StartCoroutine(DisableInfoText());
 
