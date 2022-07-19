@@ -62,6 +62,7 @@ public class NFTPurchaser : MonoBehaviour
                 {
                     //Debug.Log("Predata " + j.GetField("value").GetField("ipnft").stringValue);
                     SingletonDataManager.nftmetaCDI = j.GetField("value").GetField("url").stringValue; //ipnft
+                    //SingletonDataManager.tokenID = j.GetField("value").GetField("ipnft").stringValue; //ipnft
                     Debug.Log("Metadata saved successfully");
                     PurchaseItem(cost);
                 }
@@ -125,15 +126,22 @@ public class NFTPurchaser : MonoBehaviour
 
         var metadataUrl = SingletonDataManager.nftmetaCDI;// + SingletonDataManager.postfixMetaUrl;
 
-     
-        //transactionInfoText.text = "Metadata saved successfully";
 
-        long tokenId = MoralisTools.ConvertStringToLong(SingletonDataManager.nftmetaCDI);
+       
+
+        long currentTime = DateTime.Now.Ticks;
+        var _currentTokenID = new BigInteger(currentTime);
+
+        //transactionInfoText.text = "Metadata saved successfully";
+       // Debug.Log("Toekn " + currentTime + " | " + SingletonDataManager.tokenID.Length);
+        Debug.Log("Toekn Trim " + _currentTokenID);
+
+        long tokenId = MoralisTools.ConvertStringToLong(SingletonDataManager.useruniqid);
 
         //transactionInfoText.text = "Please confirm transaction in your wallet";
         MessaeBox.insta.showMsg("Please confirm transaction in your wallet", false);
         Debug.Log("Please confirm transaction in your wallet " + tokenId);
-        var result = await PurchaseItemFromContract(tokenId, metadataUrl);
+        var result = await PurchaseItemFromContract(metadataUrl);
 
         if (result is null)
         {
@@ -157,25 +165,36 @@ public class NFTPurchaser : MonoBehaviour
 
         PurchaseCompleted?.Invoke(SingletonDataManager.nftmetaCDI);
         SingletonDataManager.nftmetaCDI = null;
+       // SingletonDataManager.tokenID = null;
     }
-
+    private BigInteger _currentTokenId;
     // We are minting the NFT and transferring it to the player
-    private async Task<string> PurchaseItemFromContract(BigInteger tokenId, string metadataUrl)
+    private async Task<string> PurchaseItemFromContract( string metadataUrl)
     {
         byte[] data = Array.Empty<byte>();
 
+        string data2 = "[]";
+
+        string[] test = new string[0];
+
+        long currentTime = DateTime.Now.Ticks;
+        _currentTokenId = new BigInteger(currentTime);
         object[] parameters = {
-            tokenId.ToString("x"),
+            _currentTokenId.ToString(),
             metadataUrl,
-            data
+            test
         };
 
         // Set gas estimate
-        HexBigInteger value = new HexBigInteger("0x0");
+        HexBigInteger value = new HexBigInteger(0);
         HexBigInteger gas = new HexBigInteger(0);
-        HexBigInteger gasPrice = new HexBigInteger("0x0");
+        HexBigInteger gasPrice = new HexBigInteger(0);
 
-        string resp = await Moralis.ExecuteContractFunction(SingletonDataManager.insta.contract_ethAddress, SingletonDataManager.insta.contract_abi, "buyItem", parameters, value, gas, gasPrice);
+        Debug.Log("DataTRansfer " + JsonConvert.SerializeObject(parameters));
+            ;
+
+        string resp = await Moralis.ExecuteContractFunction(SingletonDataManager.insta.contract_ethAddress, SingletonDataManager.contract_abi, "buyItem", parameters, value, gas, gasPrice);
+
 
         return resp;
     }
