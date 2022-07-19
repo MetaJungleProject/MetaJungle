@@ -62,8 +62,7 @@ public class SingletonDataManager : MonoBehaviour
                 Application.targetFrameRate = -1;
         }
 
-        CustomMicrophone.RequestMicrophonePermission();
-        CustomMicrophone.RefreshMicrophoneDevices();
+
 
         Moralis.Start();
         //getUserDataonStart();
@@ -72,8 +71,14 @@ public class SingletonDataManager : MonoBehaviour
 
 
         //long tokenId = MoralisTools.ConvertStringToLong(jsonData);
-       // Debug.Log(tokenId);
+        // Debug.Log(tokenId);
+        Invoke("RequestMic", 2);
 
+    }
+
+    void RequestMic() {
+        CustomMicrophone.RequestMicrophonePermission();
+        CustomMicrophone.RefreshMicrophoneDevices();
     }
 
 
