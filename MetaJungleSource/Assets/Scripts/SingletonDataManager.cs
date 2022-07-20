@@ -247,12 +247,13 @@ public class SingletonDataManager : MonoBehaviour
 
     public async void LoadPurchasedItems()
     {
-        await Task.Delay(1000);
+        Debug.Log("LoadPurchasedItems ============");
+        //await Task.Delay(1000);
         //We get our wallet address.
         // MoralisUser user = await Moralis.GetUserAsync();
         var user = await Moralis.GetClient().GetCurrentUserAsync();
         var playerAddress = user.authData["moralisEth"]["id"].ToString();
-        await Task.Delay(1000);
+        //await Task.Delay(1000);
 
 
         Debug.Log("playerAddress " + playerAddress);
@@ -266,7 +267,7 @@ public class SingletonDataManager : MonoBehaviour
            
             List<NftOwner> nftOwners = noc.Result;
             Debug.Log("nftOwners " + nftOwners.Count);
-            await Task.Delay(1000);
+           // await Task.Delay(1000);
             Debug.Log("nftOwnersJson " + noc.ToJson());
             // We only proceed if we find some
             if (!nftOwners.Any())
@@ -283,7 +284,7 @@ public class SingletonDataManager : MonoBehaviour
                     // Sometimes GetNFTsForContract fails to get NFT Metadata. We need to re-sync
                     await Moralis.GetClient().Web3Api.Token.ReSyncMetadata(nftOwners[i].TokenAddress, nftOwners[i].TokenId, ContractChain);
                     Debug.Log("We couldn't get NFT Metadata. Re-syncing..." + nftOwners[i].TokenAddress + " | " + nftOwners[i].TokenId.ToString());
-                    await Task.Delay(1500);
+                    //await Task.Delay(1500);
                     continue;
                 }
                 var nftMetaData = nftOwners[i].Metadata;
