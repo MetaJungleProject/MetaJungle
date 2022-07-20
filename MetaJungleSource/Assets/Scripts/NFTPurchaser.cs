@@ -34,7 +34,7 @@ public class NFTPurchaser : MonoBehaviour
 
 
 
-    public IEnumerator UploadNFTMetadata(string _metadata, int cost)
+    public IEnumerator UploadNFTMetadata(string _metadata, int cost, int _id)
     {
         MessaeBox.insta.showMsg("NFT purchase process started\nThis can up to minute", false);
         Debug.Log("Creating and saving metadata to IPFS...");
@@ -64,7 +64,7 @@ public class NFTPurchaser : MonoBehaviour
                     SingletonDataManager.nftmetaCDI = j.GetField("value").GetField("url").stringValue; //ipnft
                     //SingletonDataManager.tokenID = j.GetField("value").GetField("ipnft").stringValue; //ipnft
                     Debug.Log("Metadata saved successfully");
-                    PurchaseItem(cost);
+                    PurchaseItem(cost, _id);
                 }
             }
         }
@@ -117,7 +117,7 @@ public class NFTPurchaser : MonoBehaviour
     }
 
 
-    public async void PurchaseItem(int cost)
+    public async void PurchaseItem(int cost, int _id)
     {
         PurchaseStarted?.Invoke();
 
@@ -136,12 +136,13 @@ public class NFTPurchaser : MonoBehaviour
        // Debug.Log("Toekn " + currentTime + " | " + SingletonDataManager.tokenID.Length);
         Debug.Log("Toekn Trim " + _currentTokenID);
 
-        long tokenId = MoralisTools.ConvertStringToLong(SingletonDataManager.useruniqid);
+        //long tokenId = MoralisTools.ConvertStringToLong(SingletonDataManager.useruniqid);
+        long tokenId = (long)(_id+200);
 
         //transactionInfoText.text = "Please confirm transaction in your wallet";
         MessaeBox.insta.showMsg("Please confirm transaction in your wallet", false);
         Debug.Log("Please confirm transaction in your wallet " + tokenId);
-        var result = await PurchaseItemFromContract(metadataUrl);
+        var result = await PurchaseItemFromContract(tokenId, metadataUrl);
 
         if (result is null)
         {
@@ -167,28 +168,29 @@ public class NFTPurchaser : MonoBehaviour
         SingletonDataManager.nftmetaCDI = null;
        // SingletonDataManager.tokenID = null;
     }
-    private BigInteger _currentTokenId;
+    //private BigInteger _currentTokenId;
     // We are minting the NFT and transferring it to the player
-    private async Task<string> PurchaseItemFromContract( string metadataUrl)
+    private async Task<string> PurchaseItemFromContract(BigInteger tokenId, string metadataUrl)
     {
 
 #if UNITY_WEBGL
         string[] data = new string[0];
-         long currentTime = DateTime.Now.Ticks;
-        _currentTokenId = new BigInteger(currentTime);
+        // long currentTime = DateTime.Now.Ticks;
+        //_currentTokenId = new BigInteger(currentTime);
 
         object[] parameters = {
-            _currentTokenId.ToString(),
+            tokenId,
             metadataUrl,
             data
         };
 #else
+        //string[] data = new string[0];
         byte[] data = Array.Empty<byte>();
-        long currentTime = DateTime.Now.Ticks;
-        _currentTokenId = new BigInteger(currentTime);
+       // long currentTime = DateTime.Now.Ticks;
+        //_currentTokenId = new BigInteger(currentTime);
 
         object[] parameters = {
-            _currentTokenId.ToString("x"),
+            tokenId,
             metadataUrl,
             data
         };
@@ -199,10 +201,10 @@ public class NFTPurchaser : MonoBehaviour
         HexBigInteger gas = new HexBigInteger(0);
         HexBigInteger gasPrice = new HexBigInteger(0);
 
-        //Debug.Log("DataTRansfer " + JsonConvert.SerializeObject(parameters));
+        Debug.Log("DataTRansfer " + JsonConvert.SerializeObject(parameters));
             
 
-        string resp = await Moralis.ExecuteContractFunction(SingletonDataManager.insta.contract_ethAddress, SingletonDataManager.contract_abi, "buyItem", parameters, value, gas, gasPrice);
+        string resp = await Moralis.ExecuteContractFunction(SingletonDataManager.insta.contract_ethAddress, SingletonDataManager.insta.contract_abi, "buyItem", parameters, value, gas, gasPrice);
 
 
         return resp;

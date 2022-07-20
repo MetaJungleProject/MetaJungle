@@ -1,3 +1,4 @@
+using FrostweepGames.Plugins.Native;
 using MoralisUnity;
 using MoralisUnity.Platform.Queries;
 using MoralisUnity.Web3Api.Models;
@@ -6,9 +7,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
-using FrostweepGames.Plugins.Native;
 
 public class SingletonDataManager : MonoBehaviour
 {
@@ -24,11 +25,11 @@ public class SingletonDataManager : MonoBehaviour
     public List<MyMetadataNFT> otherPlayerNFTData = new List<MyMetadataNFT>();
     public static bool isMyVirtualWorld = true;
 
-    public static string contract_abi = "[{\"inputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"operator\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"bool\",\"name\":\"approved\",\"type\":\"bool\"}],\"name\":\"ApprovalForAll\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"previousOwner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnershipTransferred\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"operator\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256[]\",\"name\":\"ids\",\"type\":\"uint256[]\"},{\"indexed\":false,\"internalType\":\"uint256[]\",\"name\":\"values\",\"type\":\"uint256[]\"}],\"name\":\"TransferBatch\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"operator\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"id\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"TransferSingle\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"string\",\"name\":\"value\",\"type\":\"string\"},{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"id\",\"type\":\"uint256\"}],\"name\":\"URI\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"id\",\"type\":\"uint256\"}],\"name\":\"balanceOf\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address[]\",\"name\":\"accounts\",\"type\":\"address[]\"},{\"internalType\":\"uint256[]\",\"name\":\"ids\",\"type\":\"uint256[]\"}],\"name\":\"balanceOfBatch\",\"outputs\":[{\"internalType\":\"uint256[]\",\"name\":\"\",\"type\":\"uint256[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_tokenId\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"_tokenUrl\",\"type\":\"string\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"name\":\"buyItem\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"operator\",\"type\":\"address\"}],\"name\":\"isApprovedForAll\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"name\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"renounceOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256[]\",\"name\":\"ids\",\"type\":\"uint256[]\"},{\"internalType\":\"uint256[]\",\"name\":\"amounts\",\"type\":\"uint256[]\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"name\":\"safeBatchTransferFrom\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"id\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"name\":\"safeTransferFrom\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"operator\",\"type\":\"address\"},{\"internalType\":\"bool\",\"name\":\"approved\",\"type\":\"bool\"}],\"name\":\"setApprovalForAll\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes4\",\"name\":\"interfaceId\",\"type\":\"bytes4\"}],\"name\":\"supportsInterface\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"transferOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"id\",\"type\":\"uint256\"}],\"name\":\"uri\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"}]";
+    public string contract_abi;
     public string contract_ethAddress;
     public const string postfixMetaUrl = ".ipfs.nftstorage.link/metadata.json";
     public static string nftmetaCDI;
-   // public static string tokenID;
+    // public static string tokenID;
     public static ChainList ContractChain = ChainList.mumbai;
 
     bool initData = false;
@@ -76,7 +77,8 @@ public class SingletonDataManager : MonoBehaviour
 
     }
 
-    void RequestMic() {
+    void RequestMic()
+    {
         CustomMicrophone.RequestMicrophonePermission();
         CustomMicrophone.RefreshMicrophoneDevices();
     }
@@ -245,10 +247,13 @@ public class SingletonDataManager : MonoBehaviour
 
     public async void LoadPurchasedItems()
     {
+        await Task.Delay(1000);
         //We get our wallet address.
         // MoralisUser user = await Moralis.GetUserAsync();
         var user = await Moralis.GetClient().GetCurrentUserAsync();
         var playerAddress = user.authData["moralisEth"]["id"].ToString();
+        await Task.Delay(1000);
+
 
         Debug.Log("playerAddress " + playerAddress);
         myNFTData.Clear();
@@ -258,9 +263,10 @@ public class SingletonDataManager : MonoBehaviour
                 await Moralis.GetClient().Web3Api.Account.GetNFTsForContract(playerAddress.ToLower(),
                     contract_ethAddress,
                     ContractChain);
-
+           
             List<NftOwner> nftOwners = noc.Result;
             Debug.Log("nftOwners " + nftOwners.Count);
+            await Task.Delay(1000);
             Debug.Log("nftOwnersJson " + noc.ToJson());
             // We only proceed if we find some
             if (!nftOwners.Any())
@@ -269,17 +275,17 @@ public class SingletonDataManager : MonoBehaviour
                 return;
             }
 
-
+           
             for (int i = 0; i < nftOwners.Count; i++)
             {
                 if (nftOwners[i].Metadata == null)
                 {
                     // Sometimes GetNFTsForContract fails to get NFT Metadata. We need to re-sync
-                    //Moralis.GetClient().Web3Api.Token.ReSyncMetadata(nftOwner.TokenAddress, nftOwner.TokenId, ContractChain);
-                    Debug.Log("We couldn't get NFT Metadata. Re-syncing...");
+                    await Moralis.GetClient().Web3Api.Token.ReSyncMetadata(nftOwners[i].TokenAddress, nftOwners[i].TokenId, ContractChain);
+                    Debug.Log("We couldn't get NFT Metadata. Re-syncing..." + nftOwners[i].TokenAddress + " | " + nftOwners[i].TokenId.ToString());
+                    await Task.Delay(1500);
                     continue;
                 }
-
                 var nftMetaData = nftOwners[i].Metadata;
                 NftMetadata formattedMetaData = JsonUtility.FromJson<NftMetadata>(nftMetaData);
                 Debug.Log(nftOwners[i].TokenId + " nftMetaData " + JsonConvert.DeserializeObject(nftMetaData));
@@ -298,12 +304,16 @@ public class SingletonDataManager : MonoBehaviour
             Debug.LogError(exp.Message);
         }
 
-        if (myNFTData.Count > 0) {
-            if (MetaManager.insta) {
+        if (myNFTData.Count > 0)
+        {
+            if (MetaManager.insta)
+            {
                 MetaManager.insta.UpdatePlayerWorldProperties();
                 Debug.Log("We UpdatePlayerWorldProperties");
             }
         }
+
+      
     }
 
 }
