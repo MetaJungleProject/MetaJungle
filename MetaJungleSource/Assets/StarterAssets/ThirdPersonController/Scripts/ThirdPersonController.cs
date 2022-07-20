@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 #if ENABLE_INPUT_SYSTEM && STARTER_ASSETS_PACKAGES_CHECKED
 using UnityEngine.InputSystem;
 #endif
@@ -110,6 +111,7 @@ namespace StarterAssets
 
         private bool _hasAnimator;
 
+        
         private bool IsCurrentDeviceMouse
         {
             get
@@ -122,7 +124,7 @@ namespace StarterAssets
             }
         }
 
-
+        bool resettingYangle=false;
         private void Awake()
         {
             // get a reference to our main camera
@@ -255,17 +257,19 @@ namespace StarterAssets
 
             // note: Vector2's != operator uses approximation so is not floating point error prone, and is cheaper than magnitude
             // if there is a move input rotate player when the player is moving
-            if (_input.move != Vector2.zero)
+            if (!resettingYangle)
             {
-                _targetRotation = Mathf.Atan2(inputDirection.x, inputDirection.z) * Mathf.Rad2Deg +
-                                  _mainCamera.transform.eulerAngles.y;
-                float rotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, _targetRotation, ref _rotationVelocity,
-                    RotationSmoothTime);
+                if (_input.move != Vector2.zero)
+                {
+                    _targetRotation = Mathf.Atan2(inputDirection.x, inputDirection.z) * Mathf.Rad2Deg +
+                                      _mainCamera.transform.eulerAngles.y;
+                    float rotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, _targetRotation, ref _rotationVelocity,
+                        RotationSmoothTime);
 
-                // rotate to face input direction relative to camera position
-                transform.rotation = Quaternion.Euler(0.0f, rotation, 0.0f);
+                    // rotate to face input direction relative to camera position
+                    transform.rotation = Quaternion.Euler(0.0f, rotation, 0.0f);
+                }
             }
-
 
             Vector3 targetDirection = Quaternion.Euler(0.0f, _targetRotation, 0.0f) * Vector3.forward;
 
@@ -279,6 +283,27 @@ namespace StarterAssets
                 _animator.SetFloat(_animIDSpeed, _animationBlend);
                 _animator.SetFloat(_animIDMotionSpeed, inputMagnitude);
             }
+        }
+        public void ResetRotation(float yAngle,float time)
+        {
+            
+            StartCoroutine(resetRot(yAngle, time));
+        }
+        IEnumerator resetRot(float angle, float time)
+        {
+            float start = transform.rotation.eulerAngles.y;
+            float end = angle;
+            float t = 0;
+
+
+            while (t < 1)
+            {
+                yield return null;
+                t += Time.deltaTime / time;
+                transform.rotation = Quaternion.Euler(0.0f, Mathf.Lerp(start, end, Time.deltaTime / t), 0.0f);
+            }
+            transform.rotation = Quaternion.Euler(0.0f, end, 0.0f);
+
         }
 
         private void JumpAndGravity()

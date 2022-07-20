@@ -1,3 +1,4 @@
+using Cinemachine;
 using ExitGames.Client.Photon;
 using Photon.Pun;
 using Photon.Realtime;
@@ -19,6 +20,7 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
     [SerializeField] PlayerInput _playerInput;
     [SerializeField] StarterAssetsInputs _inputs;
     [SerializeField] StarterAssets.StarterAssets _customInput;
+    [SerializeField] Camera cam;
 
     [SerializeField] GameObject[] myPlayers;
     [SerializeField] TMP_Text usernameText;
@@ -39,6 +41,8 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
     [SerializeField] GameObject weaponObj;
     [SerializeField] GameObject[] weaponParent;
     [SerializeField] GameObject[] weapons;
+    [SerializeField] Vector3[] weaponStartPosz;
+    [SerializeField] Quaternion[] weaponStartRotz;
     Vector3 weaponLastPoz;
     Quaternion weaponLastRot;
 
@@ -48,6 +52,25 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
     [SerializeField] Image healthbarIng;
     //int playerHealth = 100;
 
+
+    [Header("Shooting Properties")]
+    [SerializeField] Button shootingAreaBtn;
+    [SerializeField] Button shootBulletBtn;
+    [SerializeField] TMP_Text Text_shootTimer;
+    [SerializeField] TMP_Text Text_shootCounter;
+    [SerializeField] GameObject bullet_prefab;    
+    [SerializeField] float bullet_speed;
+    [SerializeField] Transform bullet_start_pos;
+    [SerializeField] GameObject crossHair;
+    [SerializeField] LayerMask aimColliderMask;
+    [SerializeField] Vector3 aimWorldPos;
+    Cinemachine3rdPersonFollow followCam;
+    [Header("Balloon Spawn Properties")]
+    [SerializeField] float spawn_delay;
+    [SerializeField] float spawn_time=0;
+    [SerializeField] Vector3 spawn_balloon_location;
+    [SerializeField] GameObject balloon_prefab;
+    
     private void Awake()
     {
         WeaponCollider.SetActive(false);
@@ -61,12 +84,42 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
         _customInput = new StarterAssets.StarterAssets();
         _customInput.Player.Enable();
 
+
+        weaponStartPosz = new Vector3[weapons.Length];
+        weaponStartRotz = new Quaternion[weapons.Length];
+        for (int i = 0; i < weapons.Length; i++)
+        {
+            weaponStartPosz[i] = weapons[i].transform.localPosition;
+            weaponStartRotz[i] = weapons[i].transform.localRotation;
+        }
+        
+
+
         if (pview.IsMine)
         {
             MetaManager.insta.myPlayer = gameObject;
             MetaManager.insta.playerCam.Follow = vCamTarget.transform;
             MetaManager.insta.uiInput.starterAssetsInputs = _inputs;
             meetObj.SetActive(true);
+            cam = Camera.main;
+
+            followCam = MetaManager.insta.playerCam.GetCinemachineComponent<Cinemachine3rdPersonFollow>();
+
+            Text_shootTimer = MetaManager.insta.Text_ShootTimer;
+            Text_shootCounter = MetaManager.insta.Text_ShootCounter;
+            Text_shootTimer.gameObject.SetActive(false);
+            Text_shootCounter.gameObject.SetActive(false);
+
+            shootingAreaBtn = MetaManager.insta.shootingAreaBtn;
+            shootBulletBtn = MetaManager.insta.shootBulletBtn;
+            crossHair = MetaManager.insta.crossHair;
+
+
+            shootingAreaBtn.onClick.AddListener(GoToShootMode);
+            shootBulletBtn.onClick.AddListener(ShootBullet);
+
+
+
 
         }
         else
@@ -78,6 +131,7 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
         showHealthBar(false);
 
         playerNo = int.Parse(pview.Owner.CustomProperties["char_no"].ToString());
+        Debug.Log("Player Number " + playerNo);
         myPlayers[playerNo].SetActive(true);
         myAnim = myPlayers[playerNo].GetComponent<Animator>();
         usernameText.text = pview.Owner.NickName;
@@ -107,6 +161,8 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
         virtualWorldUI.transform.LookAt(MetaManager.insta.myCam.transform);
         virtualWorldUI.transform.rotation = Quaternion.LookRotation(MetaManager.insta.myCam.transform.forward);
 
+       
+
 
     }
 
@@ -116,7 +172,7 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
         {
             if (!myAnim.GetBool("attack"))
             {
-                if (tController.Grounded && (mController.velocity.x != 0 || mController.velocity.z != 0))
+                if (tController.Grounded && (_inputs.move.x != 0 || _inputs.move.y != 0))
                 {
                     myAnim.SetBool("walk", true);
                 }
@@ -143,6 +199,39 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
 
 
 
+           
+                if (inShootingMode)
+                {
+
+                    Vector2 center = new Vector2(Screen.width / 2f, Screen.height / 2f);
+                    Ray ray = cam.ScreenPointToRay(center);
+                    if (Physics.Raycast(ray, out RaycastHit raycastHit, Mathf.Infinity, aimColliderMask))
+                    {
+                        aimWorldPos = raycastHit.point;                        
+                        crossHair.SetActive(true);
+                        
+                    }
+                    else
+                    {
+                        crossHair.SetActive(false);
+                    }
+
+                    spawn_time += Time.deltaTime;
+                    if (spawn_time > spawn_delay)
+                    {                        
+                        spawn_time = 0;
+                        Vector3 offset = Random.insideUnitSphere * 10f;
+                        offset.y = 1.5f;
+                        Instantiate(balloon_prefab, spawn_balloon_location + offset, balloon_prefab.transform.rotation);                        
+                    }
+
+                    if (_customInput.Player.Attack.triggered && shootBulletBtn.interactable && (!UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject()))
+                    {
+                        ShootBullet();
+                    }
+                }
+            
+
         }
 
         //if (!tController.Grounded)
@@ -161,17 +250,22 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
     bool _waitToReattack = false;
     private void OnTriggerEnter(Collider other)
     {
-        if (!MetaManager.isFighting)
+        if (!MetaManager.isFighting && !MetaManager.isShooting)
         {
             if (!pview.IsMine && (bool)pview.Owner.CustomProperties["isfighting"] == false && !MetaManager.inVirtualWorld)
             {
-                if (other.CompareTag("Meet"))
+                if (other.CompareTag("Meet") && !other.GetComponentInParent<MyCharacter>().inShootingMode)
                 {
                     Debug.Log("Meet him");
                     meetUI.SetActive(true);
                     virtualWorldUI.SetActive(true);
                 }
             }
+            else if (other.CompareTag("shootingArea")) {
+                spawn_balloon_location = other.transform.position;
+                shootingAreaBtn.gameObject.SetActive(true);
+            }
+
         }
         else
         {
@@ -188,10 +282,7 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
                         {
                             StartCoroutine(waitToReattack());
                         }
-
-
                     }
-
                 }
             }
         }
@@ -232,12 +323,16 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
                 meetUI.SetActive(false);
                 virtualWorldUI.SetActive(false);
             }
+        }else if (other.CompareTag("shootingArea"))
+        {
+            shootingAreaBtn.gameObject.SetActive(false);
         }
     }
 
     #region weapons
 
     int currentWeapon = 0;
+
     public void SelectWeapon()
     {
         Debug.Log("SelectWeapon");
@@ -245,8 +340,11 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
         if (pview.IsMine) MetaManager.isFighting = true;
         weaponObj.SetActive(true);
         showHealthBar(true);
-        weaponLastPoz = weapons[currentWeapon].transform.localPosition;
-        weaponLastRot = weapons[currentWeapon].transform.localRotation;
+        /* weaponLastPoz = weapons[currentWeapon].transform.localPosition;
+         weaponLastRot = weapons[currentWeapon].transform.localRotation;*/
+        weapons[currentWeapon].transform.localPosition = weaponStartPosz[currentWeapon];
+        weapons[currentWeapon].transform.localRotation = weaponStartRotz[currentWeapon];
+
         weapons[currentWeapon].SetActive(true);
         weapons[currentWeapon].transform.parent = weaponParent[playerNo].transform;
     }
@@ -257,6 +355,8 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
         weapons[currentWeapon].transform.parent = weaponObj.transform;
         // weapons[currentWeapon].transform.localPosition = weaponLastPoz;
         //weapons[currentWeapon].transform.localRotation = weaponLastRot;
+        weapons[currentWeapon].transform.localPosition = weaponStartPosz[currentWeapon];
+        weapons[currentWeapon].transform.localRotation = weaponStartRotz[currentWeapon];
 
         weapons[currentWeapon].SetActive(false);
         weaponObj.SetActive(false);
@@ -390,7 +490,158 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
     }
     #endregion
 
+    #region Balloon Shoot Area
 
+    [SerializeField] bool inShootingMode = false;    
+    [SerializeField] float totalShootTime;
+    [SerializeField] float currentShootTime;
+    [SerializeField] int balloonBursted;   
+
+
+    public void HitBalloon()
+    {
+        balloonBursted ++;
+        Text_shootCounter.text = "Score : " + balloonBursted.ToString();
+    }
+    private void GoToShootMode()
+    {
+        if (!inShootingMode)
+        {
+            AudioManager.insta.playSound(10);
+            AudioManager.insta.playSound(12);
+
+            MetaManager.isShooting = true;
+            //MetaManager.insta.ShootArea.GetComponent<SphereCollider>().isTrigger = false;
+            shootingAreaBtn.gameObject.SetActive(false);
+            shootBulletBtn.gameObject.SetActive(true);
+            crossHair.SetActive(true);
+            balloonBursted = 0;
+            
+            StartCoroutine(LerpVector_Cam_Offset(new Vector3(7.8f, 0.8f, 2.25f), 0.3f));         
+
+            currentShootTime = totalShootTime;
+            inShootingMode = true;
+
+            SendShootAreaCode(pview.Owner.UserId,true);
+            ToggleGun(true);
+            StartCoroutine(StopShootingMode(totalShootTime));
+        }
+    }
+    private void ExitShootingMode()
+    {
+        if (inShootingMode)
+        {
+            if (balloonBursted >= 5)
+            {
+                SingletonDataManager.userData.score++;
+                SingletonDataManager.insta.UpdateUserDatabase();
+            }
+            AudioManager.insta.playSound(11);
+            MetaManager.isShooting = false;
+
+            shootBulletBtn.gameObject.SetActive(false);
+            
+
+            StartCoroutine(LerpVector_Cam_Offset(new Vector3(1, 0, 0), 0.3f));
+            
+            inShootingMode = false;
+            crossHair.SetActive(false);
+            SendShootAreaCode(pview.Owner.UserId, false);
+            ToggleGun(false);
+            Text_shootTimer.gameObject.SetActive(false);
+            Text_shootCounter.gameObject.SetActive(false);
+        }
+    }
+    IEnumerator LerpVector_Cam_Offset(Vector3 position, float time)
+    {
+        Vector3 start = followCam.ShoulderOffset;
+        Vector3 end = position;
+        float t = 0;
+
+
+        while (t < 1)
+        {
+            yield return null;
+            t += Time.deltaTime / time;
+            followCam.ShoulderOffset = Vector3.Lerp(start, end, t);
+        }
+        followCam.ShoulderOffset = end;
+
+    }
+    IEnumerator StopShootingMode(float time)
+    {
+        Text_shootTimer.gameObject.SetActive(true);
+        Text_shootCounter.gameObject.SetActive(true);
+        Text_shootTimer.text ="Remaining time : " +  time.ToString();
+        Text_shootCounter.text ="Score : " + "0";
+        while (time > 0)
+        {
+            yield return new WaitForSeconds(1);
+            time -= 1;
+            Text_shootTimer.text = "Remaining time : " + time.ToString();
+        }
+
+        ExitShootingMode();
+    }
+
+    private void ShootBullet()
+    {
+        AudioManager.insta.playSound(13);
+        Rigidbody bullet_rb = Instantiate(bullet_prefab, bullet_start_pos.position,Quaternion.LookRotation( (aimWorldPos-bullet_start_pos.position).normalized)).GetComponent<Rigidbody>();
+        bullet_rb.AddForce(bullet_rb.transform.forward * bullet_speed, ForceMode.Impulse);
+        shootBulletBtn.interactable = false;
+        myAnim.SetBool("pistol", true);
+        tController.ResetRotation(bullet_rb.transform.eulerAngles.y,0.1f);
+        StartCoroutine(waitForBulletReset());
+    }
+    
+    
+    IEnumerator waitForBulletReset()
+    {
+        yield return new WaitForSeconds(0.35f);
+        myAnim.SetBool("pistol", false);
+        shootBulletBtn.interactable = true;
+
+    }
+    private void StopShooting()
+    {
+        MetaManager.insta.ShootArea.GetComponent<SphereCollider>().isTrigger = true;
+    }
+
+    void ToggleGun(bool enableGun)
+    {
+        if (!pview.IsMine)
+        {
+            inShootingMode = enableGun;
+        }
+        
+        if (enableGun)
+        {
+            Debug.Log("ENABLE GUN HERE");
+
+            
+            weaponObj.SetActive(true);
+            /* weaponLastPoz = weapons[2].transform.localPosition;
+             weaponLastRot = weapons[2].transform.localRotation;*/
+
+           /* weapons[2].transform.localPosition = weaponStartPosz[2];
+            weapons[2].transform.localRotation = weaponStartRotz[2];*/
+
+            weapons[2].SetActive(true);
+            weapons[2].transform.parent = weaponParent[playerNo].transform;
+        }
+        else
+        {
+            weapons[2].transform.parent = weaponObj.transform;
+            weapons[2].transform.localPosition= weaponStartPosz[2];
+            weapons[2].transform.localRotation= weaponStartRotz[2];
+            
+
+            weapons[2].SetActive(false);
+            weaponObj.SetActive(false);
+        }
+    }
+    #endregion
     public override void OnPlayerPropertiesUpdate(Player targetPlayer, ExitGames.Client.Photon.Hashtable changedProps)
     {
         // base.OnPlayerPropertiesUpdate(targetPlayer, changedProps);
@@ -445,6 +696,7 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
 
     // If you have multiple custom events, it is recommended to define them in the used class
     public const byte FightEventCode = 1;
+    public const byte ShootAreaCode = 3;
 
     private void SendFightAction(bool _action, string _p1uid, string _p2uid)
     {
@@ -452,6 +704,13 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
         object[] content = new object[] { _action, _p1uid, _p2uid }; // Array contains the target position and the IDs of the selected units
         RaiseEventOptions raiseEventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All }; // You would have to set the Receivers to All in order to receive this event on the local client as well
         PhotonNetwork.RaiseEvent(FightEventCode, content, raiseEventOptions, SendOptions.SendReliable);
+    }
+    private void SendShootAreaCode( string _p_uid,bool enableGun)
+    {
+        Debug.Log("SendFightAction OnEvent");
+        object[] content = new object[] { _p_uid, enableGun}; // Array contains the target position and the IDs of the selected units
+        RaiseEventOptions raiseEventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All }; // You would have to set the Receivers to All in order to receive this event on the local client as well
+        PhotonNetwork.RaiseEvent(ShootAreaCode, content, raiseEventOptions, SendOptions.SendReliable);
     }
     private void OnEnable()
     {
@@ -500,8 +759,16 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
                     }
                 }
             }
-
-
+        }
+        else if (eventCode == ShootAreaCode) {
+            object[] data = (object[])photonEvent.CustomData;            
+            for (int i = 1; i <PhotonNetwork.CurrentRoom.PlayerCount; i++)
+            {
+                if(PhotonNetwork.PlayerList[i].UserId.Equals((string)data[0]))                
+                {   
+                    ToggleGun((bool)data[1]);
+                }
+            }
         }
     }
 }
