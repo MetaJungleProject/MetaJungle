@@ -7,7 +7,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -49,6 +48,23 @@ public class SingletonDataManager : MonoBehaviour
             Destroy(gameObject);
             return;
         }
+
+        RequestMic();
+    }
+
+    private void OnEnable()
+    {
+
+
+#if UNITY_EDITOR
+        Debug.unityLogger.logEnabled = true;
+#else
+  Debug.unityLogger.logEnabled = false;
+          Application.SetStackTraceLogType(LogType.Log, StackTraceLogType.None);
+        Application.SetStackTraceLogType(LogType.Warning, StackTraceLogType.None);
+        Application.SetStackTraceLogType(LogType.Assert, StackTraceLogType.None);
+    Application.stackTraceLogType = StackTraceLogType.None;
+#endif
     }
     byte[] data;
     private void Start()
@@ -65,7 +81,7 @@ public class SingletonDataManager : MonoBehaviour
 
 
 
-        Moralis.Start();
+        //Moralis.Start();
         //getUserDataonStart();
 
         //JsonReader jr = JSON. JsonConvert.DeserializeObject(jsonData);
@@ -73,7 +89,7 @@ public class SingletonDataManager : MonoBehaviour
 
         //long tokenId = MoralisTools.ConvertStringToLong(jsonData);
         // Debug.Log(tokenId);
-        Invoke("RequestMic", 2);
+       // Invoke("RequestMic", 2);
 
     }
 
@@ -264,10 +280,10 @@ public class SingletonDataManager : MonoBehaviour
                 await Moralis.GetClient().Web3Api.Account.GetNFTsForContract(playerAddress.ToLower(),
                     contract_ethAddress,
                     ContractChain);
-           
+
             List<NftOwner> nftOwners = noc.Result;
             Debug.Log("nftOwners " + nftOwners.Count);
-           // await Task.Delay(1000);
+            // await Task.Delay(1000);
             Debug.Log("nftOwnersJson " + noc.ToJson());
             // We only proceed if we find some
             if (!nftOwners.Any())
@@ -276,7 +292,7 @@ public class SingletonDataManager : MonoBehaviour
                 return;
             }
 
-           
+
             for (int i = 0; i < nftOwners.Count; i++)
             {
                 if (nftOwners[i].Metadata == null)
@@ -314,7 +330,7 @@ public class SingletonDataManager : MonoBehaviour
             }
         }
 
-      
+
     }
 
 }
