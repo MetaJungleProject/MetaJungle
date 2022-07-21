@@ -11,6 +11,7 @@ public class MetaManager : MonoBehaviour
 
     public Transform[] playerPoz;
     public CinemachineVirtualCamera playerCam;
+    public CinemachineVirtualCamera fpsCam;
     public UICanvasControllerInput uiInput;
     public GameObject myCam;
     public GameObject myPlayer;

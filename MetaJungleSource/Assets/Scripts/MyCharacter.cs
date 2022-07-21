@@ -65,16 +65,22 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
     [SerializeField] LayerMask aimColliderMask;
     [SerializeField] Vector3 aimWorldPos;
     Cinemachine3rdPersonFollow followCam;
-    [Header("Balloon Spawn Properties")]
-    [SerializeField] float spawn_delay;
-    [SerializeField] float spawn_time=0;
-    [SerializeField] Vector3 spawn_balloon_location;
-    [SerializeField] GameObject balloon_prefab;
+   
     
     private void Awake()
     {
         WeaponCollider.SetActive(false);
 
+    }
+    private void Attack_canceled(InputAction.CallbackContext obj)
+    {
+        tController.isDragging = false;
+    }
+
+    private void Attack_performed(InputAction.CallbackContext obj)
+    {
+        if (UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject()) return;
+        tController.isDragging = true;
     }
     private void Start()
     {
@@ -97,9 +103,19 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
 
         if (pview.IsMine)
         {
+
+            _customInput.Player.Attack.performed += Attack_performed;
+            _customInput.Player.Attack.canceled += Attack_canceled;
+
             MetaManager.insta.myPlayer = gameObject;
             MetaManager.insta.playerCam.Follow = vCamTarget.transform;
+            MetaManager.insta.fpsCam.Follow = vCamTarget.transform;
             MetaManager.insta.uiInput.starterAssetsInputs = _inputs;
+
+            CameraSwitcher.Register(MetaManager.insta.playerCam);
+            CameraSwitcher.Register(MetaManager.insta.fpsCam);
+            CameraSwitcher.SwitchCamera(MetaManager.insta.playerCam);
+
             meetObj.SetActive(true);
             cam = Camera.main;
 
@@ -216,15 +232,7 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
                         crossHair.SetActive(false);
                     }
 
-                    spawn_time += Time.deltaTime;
-                    if (spawn_time > spawn_delay)
-                    {                        
-                        spawn_time = 0;
-                        Vector3 offset = Random.insideUnitSphere * 10f;
-                        offset.y = 1.5f;
-                        Instantiate(balloon_prefab, spawn_balloon_location + offset, balloon_prefab.transform.rotation);                        
-                    }
-
+                    
                     if (_customInput.Player.Attack.triggered && shootBulletBtn.interactable && (!UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject()))
                     {
                         ShootBullet();
@@ -254,15 +262,14 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
         {
             if (!pview.IsMine && (bool)pview.Owner.CustomProperties["isfighting"] == false && !MetaManager.inVirtualWorld)
             {
-                if (other.CompareTag("Meet") && !other.GetComponentInParent<MyCharacter>().inShootingMode)
+                if (other.CompareTag("Meet") && !other.GetComponentInParent<MyCharacter>().inShootingMode && !inShootingMode)
                 {
                     Debug.Log("Meet him");
                     meetUI.SetActive(true);
                     virtualWorldUI.SetActive(true);
                 }
             }
-            else if (other.CompareTag("shootingArea")) {
-                spawn_balloon_location = other.transform.position;
+            else if (other.CompareTag("shootingArea")) {                
                 shootingAreaBtn.gameObject.SetActive(true);
             }
 
@@ -516,8 +523,9 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
             shootBulletBtn.gameObject.SetActive(true);
             crossHair.SetActive(true);
             balloonBursted = 0;
-            
-            StartCoroutine(LerpVector_Cam_Offset(new Vector3(7.8f, 0.8f, 2.25f), 0.3f));         
+
+            CameraSwitcher.SwitchCamera(MetaManager.insta.fpsCam);
+            //StartCoroutine(LerpVector_Cam_Offset(new Vector3(7.8f, 0.8f, 2.25f), 0.3f));         
 
             currentShootTime = totalShootTime;
             inShootingMode = true;
@@ -531,18 +539,21 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
     {
         if (inShootingMode)
         {
-            if (balloonBursted >= 5)
+            CameraSwitcher.SwitchCamera(MetaManager.insta.playerCam);
+
+            if (balloonBursted >= 5 && SingletonDataManager.insta)
             {
                 SingletonDataManager.userData.score++;
                 SingletonDataManager.insta.UpdateUserDatabase();
             }
+
             AudioManager.insta.playSound(11);
             MetaManager.isShooting = false;
 
             shootBulletBtn.gameObject.SetActive(false);
             
 
-            StartCoroutine(LerpVector_Cam_Offset(new Vector3(1, 0, 0), 0.3f));
+            //StartCoroutine(LerpVector_Cam_Offset(new Vector3(1, 0, 0), 0.3f));
             
             inShootingMode = false;
             crossHair.SetActive(false);

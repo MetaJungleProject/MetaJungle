@@ -81,7 +81,7 @@ public class SingletonDataManager : MonoBehaviour
 
 
 
-        //Moralis.Start();
+        Moralis.Start();
         //getUserDataonStart();
 
         //JsonReader jr = JSON. JsonConvert.DeserializeObject(jsonData);

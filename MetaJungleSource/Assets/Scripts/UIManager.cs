@@ -54,6 +54,11 @@ public class UIManager : MonoBehaviour
     [SerializeField] Image resultImg;
     [SerializeField] Sprite[] resultprites; //0 win 1 lose 2 tie
 
+    [Header("Tutorial")]
+    [SerializeField] GameObject TutorialUI;
+    [SerializeField] int currentTutorial = 0;
+    [SerializeField] GameObject[] tutorialObjects;
+
     public GameObject MyCollectionUIButton;
 
     public GameObject VirtualWorldObj;
@@ -61,6 +66,7 @@ public class UIManager : MonoBehaviour
     private void Awake()
     {
         insta = this;
+
     }
     // Start is called before the first frame update
     void Start()
@@ -165,8 +171,45 @@ public class UIManager : MonoBehaviour
     public void StartGame()
     {
         //StartUI.SetActive(false);
+        if (PlayerPrefs.GetInt("tutorial", 0) == 0)
+        {
+            ShowTutorial();
+        }
+        else
+        {
+            MPNetworkManager.insta.OnConnectedToServer();
+        }
+    }
+    #region Tutorial
+    public void ShowTutorial()
+    {
+        TutorialUI.SetActive(true);
+        for (int i = 0; i < tutorialObjects.Length; i++)
+        {
+            tutorialObjects[i].SetActive(false);
+        }
+        tutorialObjects[currentTutorial].SetActive(true);
+    }
+    public void NextTutorial()
+    {
+        tutorialObjects[currentTutorial].SetActive(false);
+        currentTutorial++;
+        if (currentTutorial >= tutorialObjects.Length)
+        {
+            SkipTutorial();
+            return;
+        }
+        tutorialObjects[currentTutorial].SetActive(true);
+    }
+    public void SkipTutorial()
+    {
+        PlayerPrefs.SetInt("tutorial", 1);
+        TutorialUI.SetActive(false);
         MPNetworkManager.insta.OnConnectedToServer();
     }
+
+
+    #endregion
 
     public void UpdatePlayerUIData(bool _show, bool _init = false)
     {

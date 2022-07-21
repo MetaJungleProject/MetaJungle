@@ -3,6 +3,7 @@ using UnityEngine;
 #if ENABLE_INPUT_SYSTEM && STARTER_ASSETS_PACKAGES_CHECKED
 using UnityEngine.InputSystem;
 #endif
+using StarterAssets;
 
 /* Note: animations are called via the controller for both the character and capsule using animator null checks
  */
@@ -87,6 +88,7 @@ namespace StarterAssets
         private float _rotationVelocity;
         private float _verticalVelocity;
         private float _terminalVelocity = 53.0f;
+        
 
         // timeout deltatime
         private float _jumpTimeoutDelta;
@@ -104,7 +106,7 @@ namespace StarterAssets
 #endif
         private Animator _animator;
         private CharacterController _controller;
-        private StarterAssetsInputs _input;
+        private StarterAssetsInputs _input;        
         private GameObject _mainCamera;
 
         private const float _threshold = 0.01f;
@@ -125,6 +127,7 @@ namespace StarterAssets
         }
 
         bool resettingYangle=false;
+        public bool isDragging;
         private void Awake()
         {
             // get a reference to our main camera
@@ -141,6 +144,10 @@ namespace StarterAssets
             _hasAnimator = TryGetComponent(out _animator);
             _controller = GetComponent<CharacterController>();
             _input = GetComponent<StarterAssetsInputs>();
+
+            
+
+
 #if ENABLE_INPUT_SYSTEM && STARTER_ASSETS_PACKAGES_CHECKED
             _playerInput = GetComponent<PlayerInput>();
 #else
@@ -154,10 +161,15 @@ namespace StarterAssets
             _fallTimeoutDelta = FallTimeout;
         }
 
+        
+
         private void Update()
         {
             if (UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject()) return;
-            _hasAnimator = TryGetComponent(out _animator);
+
+            
+
+           _hasAnimator = TryGetComponent(out _animator);
 
             JumpAndGravity();
             GroundedCheck();
@@ -196,23 +208,29 @@ namespace StarterAssets
 
         private void CameraRotation()
         {
-            // if there is an input and camera position is not fixed
-            if (_input.look.sqrMagnitude >= _threshold && !LockCameraPosition)
+           
+            
+            if (isDragging)
             {
-                //Don't multiply mouse input by Time.deltaTime;
-                float deltaTimeMultiplier = IsCurrentDeviceMouse ? 1.0f : Time.deltaTime;
+                // if there is an input and camera position is not fixed
+                if (_input.look.sqrMagnitude >= _threshold && !LockCameraPosition)
+                {
+                    //Don't multiply mouse input by Time.deltaTime;
+                    float deltaTimeMultiplier = IsCurrentDeviceMouse ? 1.0f : Time.deltaTime;
 
-                _cinemachineTargetYaw += _input.look.x * deltaTimeMultiplier;
-                _cinemachineTargetPitch += _input.look.y * deltaTimeMultiplier;
+                    _cinemachineTargetYaw += _input.look.x * deltaTimeMultiplier;
+                    _cinemachineTargetPitch += _input.look.y * deltaTimeMultiplier;
+                }
+
+                // clamp our rotations so our values are limited 360 degrees
+                _cinemachineTargetYaw = ClampAngle(_cinemachineTargetYaw, float.MinValue, float.MaxValue);
+                _cinemachineTargetPitch = ClampAngle(_cinemachineTargetPitch, BottomClamp, TopClamp);
+
+                // Cinemachine will follow this target
+                
             }
-
-            // clamp our rotations so our values are limited 360 degrees
-            _cinemachineTargetYaw = ClampAngle(_cinemachineTargetYaw, float.MinValue, float.MaxValue);
-            _cinemachineTargetPitch = ClampAngle(_cinemachineTargetPitch, BottomClamp, TopClamp);
-
-            // Cinemachine will follow this target
             CinemachineCameraTarget.transform.rotation = Quaternion.Euler(_cinemachineTargetPitch + CameraAngleOverride,
-                _cinemachineTargetYaw, 0.0f);
+                    _cinemachineTargetYaw, 0.0f);
         }
 
         private void Move()
@@ -261,8 +279,7 @@ namespace StarterAssets
             {
                 if (_input.move != Vector2.zero)
                 {
-                    _targetRotation = Mathf.Atan2(inputDirection.x, inputDirection.z) * Mathf.Rad2Deg +
-                                      _mainCamera.transform.eulerAngles.y;
+                    _targetRotation = Mathf.Atan2(inputDirection.x, inputDirection.z) * Mathf.Rad2Deg + _mainCamera.transform.eulerAngles.y;
                     float rotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, _targetRotation, ref _rotationVelocity,
                         RotationSmoothTime);
 
@@ -274,6 +291,7 @@ namespace StarterAssets
             Vector3 targetDirection = Quaternion.Euler(0.0f, _targetRotation, 0.0f) * Vector3.forward;
 
             // move the player
+            Debug.DrawRay(transform.position, targetDirection, Color.red, 0.5f);
             _controller.Move(targetDirection.normalized * (_speed * Time.deltaTime) +
                              new Vector3(0.0f, _verticalVelocity, 0.0f) * Time.deltaTime);
 
@@ -286,7 +304,7 @@ namespace StarterAssets
         }
         public void ResetRotation(float yAngle,float time)
         {
-            
+            resettingYangle = true;
             StartCoroutine(resetRot(yAngle, time));
         }
         IEnumerator resetRot(float angle, float time)
@@ -303,7 +321,7 @@ namespace StarterAssets
                 transform.rotation = Quaternion.Euler(0.0f, Mathf.Lerp(start, end, Time.deltaTime / t), 0.0f);
             }
             transform.rotation = Quaternion.Euler(0.0f, end, 0.0f);
-
+            resettingYangle = false;
         }
 
         private void JumpAndGravity()

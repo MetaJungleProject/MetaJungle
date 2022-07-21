@@ -4191,7 +4191,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2468714030164847400, guid: 2553cec8fdb3eb643bbe9f2ec880c472, type: 3}
       propertyPath: analogMovement
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2468714030164847400, guid: 2553cec8fdb3eb643bbe9f2ec880c472, type: 3}
       propertyPath: cursorInputForLook
@@ -4305,10 +4305,6 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 211
   aimWorldPos: {x: 0, y: 0, z: 0}
-  spawn_delay: 1
-  spawn_time: 1
-  spawn_balloon_location: {x: 0, y: 0, z: 0}
-  balloon_prefab: {fileID: 1399465948743628289, guid: 23fb646064b7b604e929fcb2ee073025, type: 3}
   inShootingMode: 0
   totalShootTime: 20
   currentShootTime: 0
