@@ -74,6 +74,7 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
     }
     private void Attack_canceled(InputAction.CallbackContext obj)
     {
+        if(!inShootingMode)
         tController.isDragging = false;
     }
 
@@ -518,6 +519,7 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
             AudioManager.insta.playSound(12);
 
             MetaManager.isShooting = true;
+            tController.isDragging = true;
             //MetaManager.insta.ShootArea.GetComponent<SphereCollider>().isTrigger = false;
             shootingAreaBtn.gameObject.SetActive(false);
             shootBulletBtn.gameObject.SetActive(true);
@@ -539,6 +541,7 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
     {
         if (inShootingMode)
         {
+            tController.isDragging = false;
             CameraSwitcher.SwitchCamera(MetaManager.insta.playerCam);
 
             if (balloonBursted >= 5 && SingletonDataManager.insta)
