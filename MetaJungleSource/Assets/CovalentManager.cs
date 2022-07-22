@@ -31,6 +31,7 @@ public class CovalentManager : MonoBehaviour
     }
     IEnumerator GetNFTBalance()
     {
+        yield return new WaitForSeconds(1f);
         using (UnityWebRequest webRequest = UnityWebRequest.Get(BalanceFetchPreURL + SingletonDataManager.userethAdd + BalanceFetchPostURL))
         {
             // Request and wait for the desired page.

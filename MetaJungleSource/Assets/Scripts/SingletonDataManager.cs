@@ -20,6 +20,7 @@ public class SingletonDataManager : MonoBehaviour
     public static string useruniqid;
     [SerializeField]
     public static List<MetaJungleNFTLocal> metanftlocalData = new List<MetaJungleNFTLocal>();
+    public List<MetaJungleNFTLocal> metanftlocalData2 = new List<MetaJungleNFTLocal>();
     public static List<MyMetadataNFT> myNFTData = new List<MyMetadataNFT>();
     public List<MyMetadataNFT> otherPlayerNFTData = new List<MyMetadataNFT>();
     public static bool isMyVirtualWorld = true;
@@ -209,8 +210,8 @@ public class SingletonDataManager : MonoBehaviour
 
         //
         MoralisQuery<MetaJungleNFT> _getAllItemsQuery = await Moralis.Query<MetaJungleNFT>();
-        IEnumerable<MetaJungleNFT> databaseItems = await _getAllItemsQuery.FindAsync();
-
+        IEnumerable<MetaJungleNFT> databaseItems = await _getAllItemsQuery.OrderBy("itemid").FindAsync();
+       
         var databaseItemsList = databaseItems.ToList();
         if (!databaseItemsList.Any()) return;
 
@@ -230,6 +231,7 @@ public class SingletonDataManager : MonoBehaviour
             }
         }
 
+        metanftlocalData2 = metanftlocalData;
         Debug.Log("DAta is " + JsonConvert.SerializeObject(metanftlocalData));
         GetAllNFTImg();
         // return false;
