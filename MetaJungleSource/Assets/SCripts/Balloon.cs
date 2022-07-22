@@ -71,7 +71,7 @@ public class Balloon : MonoBehaviourPun, IPunOwnershipCallbacks
         // throw new System.NotImplementedException();
         if (targetView != base.photonView) return;
 
-        PhotonNetwork.Destroy(gameObject);
+        if (base.photonView.IsMine) PhotonNetwork.Destroy(gameObject);
     }
 
     public void OnOwnershipTransferFailed(PhotonView targetView, Player senderOfFailedRequest)
