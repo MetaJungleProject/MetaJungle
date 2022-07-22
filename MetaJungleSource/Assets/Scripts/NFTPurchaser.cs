@@ -1,18 +1,14 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
-using Cysharp.Threading.Tasks;
 using Defective.JSON;
 using MoralisUnity;
 using Nethereum.Hex.HexTypes;
 using Newtonsoft.Json;
-using TMPro;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Numerics;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
-using UnityEngine.UI;
 
 public class NFTPurchaser : MonoBehaviour
 {
@@ -91,7 +87,7 @@ public class NFTPurchaser : MonoBehaviour
 
         // Create a Web Form
         WWWForm form = new WWWForm();
-       // form.AddField("meta", metaData);
+        // form.AddField("meta", metaData);
         form.AddBinaryData("file", bytes, "screenShot.png", "image/*");
 
         var data = new List<IMultipartFormSection> {
@@ -127,17 +123,17 @@ public class NFTPurchaser : MonoBehaviour
         var metadataUrl = SingletonDataManager.nftmetaCDI;// + SingletonDataManager.postfixMetaUrl;
 
 
-       
+
 
         long currentTime = DateTime.Now.Ticks;
         var _currentTokenID = new BigInteger(currentTime);
 
         //transactionInfoText.text = "Metadata saved successfully";
-       // Debug.Log("Toekn " + currentTime + " | " + SingletonDataManager.tokenID.Length);
+        // Debug.Log("Toekn " + currentTime + " | " + SingletonDataManager.tokenID.Length);
         Debug.Log("Toekn Trim " + _currentTokenID);
 
         //long tokenId = MoralisTools.ConvertStringToLong(SingletonDataManager.useruniqid);
-        long tokenId = (long)(_id+200);
+        long tokenId = (long)(_id + 200);
 
         //transactionInfoText.text = "Please confirm transaction in your wallet";
         MessaeBox.insta.showMsg("Please confirm transaction in your wallet", false);
@@ -162,11 +158,11 @@ public class NFTPurchaser : MonoBehaviour
         // transactionInfoText.text = "Transaction completed!";
         // StartCoroutine(DisableInfoText());
 
-        SingletonDataManager.insta.LoadPurchasedItems();
+        //SingletonDataManager.insta.LoadPurchasedItems();
 
         PurchaseCompleted?.Invoke(SingletonDataManager.nftmetaCDI);
         SingletonDataManager.nftmetaCDI = null;
-       // SingletonDataManager.tokenID = null;
+        // SingletonDataManager.tokenID = null;
     }
     //private BigInteger _currentTokenId;
     // We are minting the NFT and transferring it to the player
@@ -186,7 +182,7 @@ public class NFTPurchaser : MonoBehaviour
 #else
         //string[] data = new string[0];
         byte[] data = Array.Empty<byte>();
-       // long currentTime = DateTime.Now.Ticks;
+        // long currentTime = DateTime.Now.Ticks;
         //_currentTokenId = new BigInteger(currentTime);
 
         object[] parameters = {
@@ -202,7 +198,7 @@ public class NFTPurchaser : MonoBehaviour
         HexBigInteger gasPrice = new HexBigInteger(0);
 
         Debug.Log("DataTRansfer " + JsonConvert.SerializeObject(parameters));
-            
+
 
         string resp = await Moralis.ExecuteContractFunction(SingletonDataManager.insta.contract_ethAddress, SingletonDataManager.insta.contract_abi, "buyItem", parameters, value, gas, gasPrice);
 

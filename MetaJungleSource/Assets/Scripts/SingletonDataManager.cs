@@ -113,7 +113,8 @@ public class SingletonDataManager : MonoBehaviour
         initData = true;
         CheckUserData();
 
-        LoadPurchasedItems();
+        ///LoadPurchasedItems();
+        CovalentManager.insta.GetNFTUserBalance();
 
     }
 
@@ -123,7 +124,7 @@ public class SingletonDataManager : MonoBehaviour
         if (user == null) return;
         user.username = _name;
 
-
+        //await Moralis.Plugins.covalent.getBlock(GetBlockDto);
 
         var result = await user.SaveAsync();
 
@@ -304,7 +305,7 @@ public class SingletonDataManager : MonoBehaviour
                     continue;
                 }
                 var nftMetaData = nftOwners[i].Metadata;
-                NftMetadata formattedMetaData = JsonUtility.FromJson<NftMetadata>(nftMetaData);
+               // NftMetadata formattedMetaData = JsonUtility.FromJson<NftMetadata>(nftMetaData);
                 Debug.Log(nftOwners[i].TokenId + " nftMetaData " + JsonConvert.DeserializeObject(nftMetaData));
                 MyMetadataNFT myData = new MyMetadataNFT();
                 myData = JsonConvert.DeserializeObject<MyMetadataNFT>(nftMetaData);
@@ -312,7 +313,7 @@ public class SingletonDataManager : MonoBehaviour
                 myNFTData.Add(myData);
 
                 //PopulatePlayerItem(nftOwner.TokenId, formattedMetaData);
-                Debug.Log("PopulatePlayerItem " + nftOwners[i].TokenId + " | " + formattedMetaData.ToJson());
+                //Debug.Log("PopulatePlayerItem " + nftOwners[i].TokenId + " | " + formattedMetaData.ToJson());
             }
 
         }
