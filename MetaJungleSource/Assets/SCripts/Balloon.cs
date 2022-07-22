@@ -40,10 +40,11 @@ public class Balloon : MonoBehaviourPun, IPunOwnershipCallbacks
         if (other.CompareTag("Bullet"))
         {
             AudioManager.insta.playSound(14);
+            LeanTween.cancel(this.gameObject);
             if (base.photonView.IsMine) PhotonNetwork.Destroy(gameObject);
             else base.photonView.RequestOwnership();
             //this.gameObject.SetActive(false);
-            Hit();
+            //Hit();
             MetaManager.insta.myPlayer.GetComponent<MyCharacter>().HitBalloon();
         }
     }
