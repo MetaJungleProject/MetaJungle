@@ -27,9 +27,12 @@ public class Balloon : MonoBehaviourPun, IPunOwnershipCallbacks
     public void Hit()
     {
         LeanTween.cancel(this.gameObject);
-        if (pv && pv.IsMine)
+        if (base.photonView != null)
         {
-            Photon.Pun.PhotonNetwork.Destroy(pv);
+            if (pv && pv.IsMine)
+            {
+                Photon.Pun.PhotonNetwork.Destroy(pv);
+            }
         }
     }
 
@@ -41,8 +44,11 @@ public class Balloon : MonoBehaviourPun, IPunOwnershipCallbacks
             AudioManager.insta.playSound(14);
             LeanTween.cancel(this.gameObject);
             MetaManager.insta.myPlayer.GetComponent<MyCharacter>().HitBalloon(this.transform.position);
-            if (base.photonView.IsMine && gameObject != null) PhotonNetwork.Destroy(gameObject);
-            else base.photonView.RequestOwnership();
+            if (base.photonView != null)
+            {
+                if (base.photonView.IsMine && gameObject != null) PhotonNetwork.Destroy(gameObject);
+                else base.photonView.RequestOwnership();
+            }
             //this.gameObject.SetActive(false);
             //Hit();
         }
@@ -61,18 +67,25 @@ public class Balloon : MonoBehaviourPun, IPunOwnershipCallbacks
     public void OnOwnershipRequest(PhotonView targetView, Player requestingPlayer)
     {
         // throw new System.NotImplementedException();
-        if (targetView != base.photonView) return;
-        base.photonView.TransferOwnership(requestingPlayer);
+        if (base.photonView != null)
+        {
+            if (targetView != base.photonView) return;
+            base.photonView.TransferOwnership(requestingPlayer);
+        }
 
     }
 
     public void OnOwnershipTransfered(PhotonView targetView, Player previousOwner)
     {
-        // throw new System.NotImplementedException();
-        if (targetView != base.photonView) return;
+        if (base.photonView != null)
+        {
+            // throw new System.NotImplementedException();
+            if (targetView != base.photonView) return;
 
-        if (base.photonView.IsMine && gameObject !=null) {
-            PhotonNetwork.Destroy(gameObject); 
+            if (base.photonView.IsMine && gameObject != null)
+            {
+                PhotonNetwork.Destroy(gameObject);
+            }
         }
     }
 
