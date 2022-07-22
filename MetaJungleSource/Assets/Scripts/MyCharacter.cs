@@ -275,6 +275,7 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
             else if (other.CompareTag("shootingArea")) {
                 AudioManager.insta.playSound(15);
                 shootingAreaBtn.gameObject.SetActive(true);
+                LeanTween.scale(shootingAreaBtn.gameObject, Vector2.one * 1.6f, 1f).setEasePunch().setFrom(Vector2.one);
             }
 
         }

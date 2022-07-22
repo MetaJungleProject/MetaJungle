@@ -84,6 +84,11 @@ public class UIManager : MonoBehaviour
         UpdatePlayerUIData(true, true);
         UpdateUserName(SingletonDataManager.username, SingletonDataManager.userethAdd);
 
+        if (PlayerPrefs.GetInt("init", 0) == 0) {
+            PlayerPrefs.SetInt("init", 1);
+            EditUserProfile();
+        }
+
     }
 
 

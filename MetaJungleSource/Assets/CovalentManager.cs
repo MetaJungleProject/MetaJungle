@@ -150,6 +150,13 @@ public class CovalentManager : MonoBehaviour
                         }
                     }
 
+                   
+                        if (MetaManager.insta)
+                        {
+                            MetaManager.insta.UpdatePlayerWorldProperties();
+                            Debug.Log("We UpdatePlayerWorldProperties");
+                        }
+                    
                     break;
             }
         }
