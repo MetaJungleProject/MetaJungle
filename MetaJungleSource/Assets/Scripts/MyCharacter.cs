@@ -64,9 +64,11 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
     [SerializeField] GameObject crossHair;
     [SerializeField] LayerMask aimColliderMask;
     [SerializeField] Vector3 aimWorldPos;
+    [SerializeField] GameObject ParticleEffect;
     Cinemachine3rdPersonFollow followCam;
-   
     
+
+
     private void Awake()
     {
         WeaponCollider.SetActive(false);
@@ -270,7 +272,8 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
                     virtualWorldUI.SetActive(true);
                 }
             }
-            else if (other.CompareTag("shootingArea")) {                
+            else if (other.CompareTag("shootingArea")) {
+                AudioManager.insta.playSound(15);
                 shootingAreaBtn.gameObject.SetActive(true);
             }
 
@@ -377,6 +380,8 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
     #region RPC
     public void RequestFight()
     {
+        if (MetaManager.isShooting) { return; }
+
         Debug.Log("RequestFight" + pview.Owner.NickName);
         Debug.Log("RequestFightID" + pview.Owner.UserId);
         MetaManager._fighterid = pview.Owner.UserId;
@@ -412,7 +417,7 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
             Debug.Log("uid " + _uid);
             if (pview.Owner.UserId.Equals(_uid))
             {
-                if (MetaManager.fightReqPlayer != null || MetaManager.isFighting) return;
+                if (MetaManager.fightReqPlayer != null || MetaManager.isFighting || MetaManager.isShooting) return;
 
                 Debug.LogFormat("Info: {0} {1}", info.Sender, info.photonView.IsMine);
 
@@ -506,10 +511,25 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
     [SerializeField] int balloonBursted;   
 
 
-    public void HitBalloon()
+    public void HitBalloon(Vector3 pos)
     {
         balloonBursted ++;
-        Text_shootCounter.text = "Score : " + balloonBursted.ToString();
+        GenerateParticle(pos);
+        Text_shootCounter.text = "Balloons Bursted : " + balloonBursted.ToString();        
+    }
+    private void GenerateParticle(Vector3 pos)
+    {
+        GameObject g;
+        g = PhotonNetwork.Instantiate(ParticleEffect.name, pos+Vector3.up*1.8f, Quaternion.identity);
+        StartCoroutine(destroyParticles(g.GetComponent<PhotonView>(),2f));
+    }
+    IEnumerator destroyParticles(PhotonView pv,float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        if (pv != null)
+        {
+            PhotonNetwork.Destroy(pv);
+        }
     }
     private void GoToShootMode()
     {
@@ -534,7 +554,8 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
             currentShootTime = totalShootTime;
             inShootingMode = true;
 
-            SendShootAreaCode(pview.Owner.UserId,true);
+            //SendShootAreaCode(pview.Owner.UserId,true);
+            pview.RPC("RPC_ToggleGun", RpcTarget.OthersBuffered, pview.Owner.UserId, true);
             ToggleGun(true);
             StartCoroutine(StopShootingMode(totalShootTime));
         }
@@ -563,7 +584,8 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
             
             inShootingMode = false;
             crossHair.SetActive(false);
-            SendShootAreaCode(pview.Owner.UserId, false);
+            //SendShootAreaCode(pview.Owner.UserId, false);
+            pview.RPC("RPC_ToggleGun", RpcTarget.OthersBuffered, pview.Owner.UserId, false);
             ToggleGun(false);
             Text_shootTimer.gameObject.SetActive(false);
             Text_shootCounter.gameObject.SetActive(false);
@@ -590,7 +612,7 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
         Text_shootTimer.gameObject.SetActive(true);
         Text_shootCounter.gameObject.SetActive(true);
         Text_shootTimer.text ="Remaining time : " +  time.ToString();
-        Text_shootCounter.text ="Score : " + "0";
+        Text_shootCounter.text ="Balloons Bursted : " + "0";
         while (time > 0)
         {
             yield return new WaitForSeconds(1);
@@ -712,8 +734,7 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
 
 
     // If you have multiple custom events, it is recommended to define them in the used class
-    public const byte FightEventCode = 1;
-    public const byte ShootAreaCode = 3;
+    public const byte FightEventCode = 1;    
 
     private void SendFightAction(bool _action, string _p1uid, string _p2uid)
     {
@@ -722,13 +743,13 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
         RaiseEventOptions raiseEventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All }; // You would have to set the Receivers to All in order to receive this event on the local client as well
         PhotonNetwork.RaiseEvent(FightEventCode, content, raiseEventOptions, SendOptions.SendReliable);
     }
-    private void SendShootAreaCode( string _p_uid,bool enableGun)
+/*    private void SendShootAreaCode( string _p_uid,bool enableGun)
     {
         Debug.Log("SendFightAction OnEvent");
         object[] content = new object[] { _p_uid, enableGun}; // Array contains the target position and the IDs of the selected units
         RaiseEventOptions raiseEventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All }; // You would have to set the Receivers to All in order to receive this event on the local client as well
         PhotonNetwork.RaiseEvent(ShootAreaCode, content, raiseEventOptions, SendOptions.SendReliable);
-    }
+    }*/
     private void OnEnable()
     {
         PhotonNetwork.AddCallbackTarget(this);
@@ -777,7 +798,7 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
                 }
             }
         }
-        else if (eventCode == ShootAreaCode) {
+        /*else if (eventCode == ShootAreaCode) {
             object[] data = (object[])photonEvent.CustomData;            
             for (int i = 1; i <PhotonNetwork.CurrentRoom.PlayerCount; i++)
             {
@@ -786,6 +807,15 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
                     ToggleGun((bool)data[1]);
                 }
             }
+        }*/
+    }
+
+    [PunRPC]
+    public void RPC_ToggleGun(string _uid, bool enabledGun)
+    {
+        if (_uid.Equals(pview.Owner.UserId))
+        {
+            ToggleGun(enabledGun);
         }
     }
 }

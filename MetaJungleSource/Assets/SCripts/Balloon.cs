@@ -18,7 +18,6 @@ public class Balloon : MonoBehaviourPun, IPunOwnershipCallbacks
         LeanTween.moveY(this.gameObject, this.transform.position.y + 10f, Random.Range(5f,8f)).setOnComplete(()=> {
             LeanTween.scale(this.gameObject, Vector3.zero, 0.5f).setOnComplete(() =>
             {
-
                 Hit();
             });
         });
@@ -41,11 +40,11 @@ public class Balloon : MonoBehaviourPun, IPunOwnershipCallbacks
         {
             AudioManager.insta.playSound(14);
             LeanTween.cancel(this.gameObject);
+            MetaManager.insta.myPlayer.GetComponent<MyCharacter>().HitBalloon(this.transform.position);
             if (base.photonView.IsMine) PhotonNetwork.Destroy(gameObject);
             else base.photonView.RequestOwnership();
             //this.gameObject.SetActive(false);
             //Hit();
-            MetaManager.insta.myPlayer.GetComponent<MyCharacter>().HitBalloon();
         }
     }
 
@@ -72,7 +71,9 @@ public class Balloon : MonoBehaviourPun, IPunOwnershipCallbacks
         // throw new System.NotImplementedException();
         if (targetView != base.photonView) return;
 
-        if (base.photonView.IsMine) PhotonNetwork.Destroy(gameObject);
+        if (base.photonView.IsMine) {
+            PhotonNetwork.Destroy(gameObject); 
+        }
     }
 
     public void OnOwnershipTransferFailed(PhotonView targetView, Player senderOfFailedRequest)

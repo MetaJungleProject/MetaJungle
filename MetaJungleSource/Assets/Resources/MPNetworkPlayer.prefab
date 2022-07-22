@@ -4305,6 +4305,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 211
   aimWorldPos: {x: 0, y: 0, z: 0}
+  ParticleEffect: {fileID: 6883001324474016200, guid: a3e2d1d7b2680804fa24a63a87a170bf, type: 3}
   inShootingMode: 0
   totalShootTime: 20
   currentShootTime: 0
