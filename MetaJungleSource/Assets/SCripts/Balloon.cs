@@ -15,13 +15,13 @@ public class Balloon : MonoBehaviourPun, IPunOwnershipCallbacks
     {
         renderer.material = materials[Random.Range(0, materials.Length)];
         LeanTween.scale(this.gameObject, Vector3.one * 0.5f, 0.5f);
-        LeanTween.moveY(this.gameObject, this.transform.position.y + 10f, Random.Range(5f,8f)).setOnComplete(()=> {
+        /*LeanTween.moveY(this.gameObject, this.transform.position.y + 10f, Random.Range(5f,8f)).setOnComplete(()=> {
             LeanTween.scale(this.gameObject, Vector3.zero, 0.5f).setOnComplete(() =>
             {
                 Hit();
             });
         });
-
+*/
     }
 
     public void Hit()
@@ -46,8 +46,23 @@ public class Balloon : MonoBehaviourPun, IPunOwnershipCallbacks
             MetaManager.insta.myPlayer.GetComponent<MyCharacter>().HitBalloon(this.transform.position);
             if (base.photonView != null)
             {
-                if (base.photonView.IsMine && gameObject != null) PhotonNetwork.Destroy(gameObject);
-                else base.photonView.RequestOwnership();
+                if (base.photonView.IsMine && gameObject != null)
+                {
+                    if (PhotonNetwork.IsMasterClient)
+                    {
+                        PhotonNetwork.Destroy(gameObject);
+                    }
+                    else
+                    {
+                        Destroy(gameObject);
+                    }
+                }
+
+                else
+                {
+                    Destroy(this.gameObject);
+                    base.photonView.RequestOwnership();
+                }
             }
             //this.gameObject.SetActive(false);
             //Hit();
@@ -67,9 +82,14 @@ public class Balloon : MonoBehaviourPun, IPunOwnershipCallbacks
     public void OnOwnershipRequest(PhotonView targetView, Player requestingPlayer)
     {
         // throw new System.NotImplementedException();
-        if (base.photonView != null)
+        Debug.Log("3");
+        if (base.photonView != null && targetView.IsMine)
         {
+            Debug.Log("4");
             if (targetView != base.photonView) return;
+
+            Debug.Log("5");
+            Destroy(gameObject);
             base.photonView.TransferOwnership(requestingPlayer);
         }
 
@@ -82,9 +102,11 @@ public class Balloon : MonoBehaviourPun, IPunOwnershipCallbacks
             // throw new System.NotImplementedException();
             if (targetView != base.photonView) return;
 
-            if (base.photonView.IsMine && gameObject != null)
+            Debug.Log("1");
+            if (!base.photonView.IsMine && gameObject != null)
             {
-                PhotonNetwork.Destroy(gameObject);
+                Debug.Log("2");
+                Destroy(gameObject);
             }
         }
     }
