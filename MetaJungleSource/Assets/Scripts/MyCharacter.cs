@@ -555,7 +555,7 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
             inShootingMode = true;
 
             //SendShootAreaCode(pview.Owner.UserId,true);
-            pview.RPC("RPC_ToggleGun", RpcTarget.OthersBuffered, pview.Owner.UserId, true);
+            pview.RPC("RPC_ToggleGun", RpcTarget.Others, pview.Owner.UserId, true);
             ToggleGun(true);
             StartCoroutine(StopShootingMode(totalShootTime));
         }
@@ -585,7 +585,7 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
             inShootingMode = false;
             crossHair.SetActive(false);
             //SendShootAreaCode(pview.Owner.UserId, false);
-            pview.RPC("RPC_ToggleGun", RpcTarget.OthersBuffered, pview.Owner.UserId, false);
+            pview.RPC("RPC_ToggleGun", RpcTarget.Others, pview.Owner.UserId, false);
             ToggleGun(false);
             Text_shootTimer.gameObject.SetActive(false);
             Text_shootCounter.gameObject.SetActive(false);

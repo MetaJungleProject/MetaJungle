@@ -41,7 +41,7 @@ public class Balloon : MonoBehaviourPun, IPunOwnershipCallbacks
             AudioManager.insta.playSound(14);
             LeanTween.cancel(this.gameObject);
             MetaManager.insta.myPlayer.GetComponent<MyCharacter>().HitBalloon(this.transform.position);
-            if (base.photonView.IsMine) PhotonNetwork.Destroy(gameObject);
+            if (base.photonView.IsMine && gameObject != null) PhotonNetwork.Destroy(gameObject);
             else base.photonView.RequestOwnership();
             //this.gameObject.SetActive(false);
             //Hit();
@@ -71,7 +71,7 @@ public class Balloon : MonoBehaviourPun, IPunOwnershipCallbacks
         // throw new System.NotImplementedException();
         if (targetView != base.photonView) return;
 
-        if (base.photonView.IsMine) {
+        if (base.photonView.IsMine && gameObject !=null) {
             PhotonNetwork.Destroy(gameObject); 
         }
     }
