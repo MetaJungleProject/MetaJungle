@@ -127,7 +127,7 @@ public class UIManager : MonoBehaviour
     public void VisitVirtualWorld(bool _show)
     {
 
-        if (_show && !MetaManager.inVirtualWorld && !MetaManager.isFighting)
+        if (_show && !MetaManager.inVirtualWorld && !MetaManager.isFighting && !MetaManager.isShooting)
         {
             if (SingletonDataManager.myNFTData.Count > 0)
             {

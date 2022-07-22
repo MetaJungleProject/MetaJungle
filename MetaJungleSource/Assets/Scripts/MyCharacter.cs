@@ -513,8 +513,10 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
     }
     private void GoToShootMode()
     {
+       
         if (!inShootingMode)
         {
+            Cursor.lockState = CursorLockMode.Locked;
             AudioManager.insta.playSound(10);
             AudioManager.insta.playSound(12);
 
@@ -541,6 +543,7 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
     {
         if (inShootingMode)
         {
+            Cursor.lockState = CursorLockMode.None;
             tController.isDragging = false;
             CameraSwitcher.SwitchCamera(MetaManager.insta.playerCam);
 
