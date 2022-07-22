@@ -1,8 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Photon.Realtime;
+using Photon.Pun;
 
-public class Balloon : MonoBehaviour
+
+public class Balloon : MonoBehaviourPun, IPunOwnershipCallbacks
 {
     // Start is called before the first frame update
     [SerializeField] MeshRenderer renderer;
@@ -37,9 +40,42 @@ public class Balloon : MonoBehaviour
         if (other.CompareTag("Bullet"))
         {
             AudioManager.insta.playSound(14);
-            this.gameObject.SetActive(false);
+            if (base.photonView.IsMine) PhotonNetwork.Destroy(gameObject);
+            else base.photonView.RequestOwnership();
+            //this.gameObject.SetActive(false);
             Hit();
             MetaManager.insta.myPlayer.GetComponent<MyCharacter>().HitBalloon();
         }
+    }
+
+    private void OnEnable()
+    {
+        PhotonNetwork.AddCallbackTarget(this);
+    }
+
+    private void OnDisable()
+    {
+        PhotonNetwork.RemoveCallbackTarget(this);
+    }
+
+    public void OnOwnershipRequest(PhotonView targetView, Player requestingPlayer)
+    {
+        // throw new System.NotImplementedException();
+        if (targetView != base.photonView) return;
+        base.photonView.TransferOwnership(requestingPlayer);
+
+    }
+
+    public void OnOwnershipTransfered(PhotonView targetView, Player previousOwner)
+    {
+        // throw new System.NotImplementedException();
+        if (targetView != base.photonView) return;
+
+        PhotonNetwork.Destroy(gameObject);
+    }
+
+    public void OnOwnershipTransferFailed(PhotonView targetView, Player senderOfFailedRequest)
+    {
+       // throw new System.NotImplementedException();
     }
 }
