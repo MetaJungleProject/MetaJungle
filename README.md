@@ -33,7 +33,7 @@ Blockchain: Polygon - Testnet : https://mumbai.polygonscan.com/address/0xf639f26
 ![NFT.Storage use](/Images/NFT.Storage.jpg)
 
 ### Metaverse 
-![Polygon use](/Images/Polygon.jpg)
+![Polygon use](/Images/PolygonMatic.jpg)
 
 ### Metaverse 
 ![Virtual World From NFT](/Images/VirtualWorld.jpg)
