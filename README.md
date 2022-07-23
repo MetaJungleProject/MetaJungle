@@ -17,6 +17,9 @@ Meta Jungle is metaverse open world game, where user can play, challenge each ot
 - Remix IDE used to create smart contract for ERC-1155
 - Moralis to manage gameplay data
 
+### Polygon ERC-1155 Contract Address : 0xf639f267ad2495166037b863bec81fe6151591fb
+Explore : https://mumbai.polygonscan.com/address/0xf639f267ad2495166037b863bec81fe6151591fb
+
 ### Metaverse 
 ![Metaverse Game](/Images/MetaVerse.jpg)
 
