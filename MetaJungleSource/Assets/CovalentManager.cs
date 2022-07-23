@@ -19,6 +19,8 @@ public class CovalentManager : MonoBehaviour
 
     //public List<MyMetadataNFT> myNFTData = new List<MyMetadataNFT>();
 
+    public static bool loadingData = false;
+
     private void Awake()
     {
         insta = this;
@@ -27,10 +29,12 @@ public class CovalentManager : MonoBehaviour
 
     public void GetNFTUserBalance()
     {
-        StartCoroutine(GetNFTBalance());
+       if(!loadingData) StartCoroutine(GetNFTBalance());
+        else Debug.Log("Already loading GetNFTBalance");
     }
     IEnumerator GetNFTBalance()
     {
+        loadingData = true;
         Debug.Log("GetNFTBalance");
         //yield return new WaitForSeconds(1f);
         using (UnityWebRequest webRequest = UnityWebRequest.Get(BalanceFetchPreURL + SingletonDataManager.userethAdd + BalanceFetchPostURL))
@@ -46,11 +50,15 @@ public class CovalentManager : MonoBehaviour
             switch (webRequest.result)
             {
                 case UnityWebRequest.Result.ConnectionError:
+                    loadingData = false;
+                    break;
                 case UnityWebRequest.Result.DataProcessingError:
                     Debug.LogError("Error: " + webRequest.error);
+                    loadingData = false;
                     break;
                 case UnityWebRequest.Result.ProtocolError:
                     Debug.LogError("HTTP Error: " + webRequest.error);
+                    loadingData = false;
                     break;
                 case UnityWebRequest.Result.Success:
                     Debug.Log("Received: " + webRequest.downloadHandler.text);
@@ -62,6 +70,7 @@ public class CovalentManager : MonoBehaviour
 
                         myTokenID.Clear();
                         SingletonDataManager.myNFTData.Clear();
+
                         for (int i = 0; i < _data.GetField("data").GetField("items").list.Count; i++)
                         {
                             var _add = _data.GetField("data").GetField("items")[i].GetField("contract_address").stringValue.ToLower();
@@ -70,7 +79,7 @@ public class CovalentManager : MonoBehaviour
                                 if (_data.GetField("data").GetField("items")[i].GetField("nft_data").list.Count > 0)
                                 {
                                     Debug.Log("Found :" + _add + " | NFT" + _data.GetField("data").GetField("items")[i].GetField("nft_data").list.Count);
-                                    myTokenID.Clear();
+                                    // myTokenID.Clear();
 
                                     for (int j = 0; j < _data.GetField("data").GetField("items")[i].GetField("nft_data").list.Count; j++)
                                     {
@@ -78,16 +87,23 @@ public class CovalentManager : MonoBehaviour
                                         GetNFTMetaDataDetails(_data.GetField("data").GetField("items")[i].GetField("nft_data")[j].GetField("token_id").stringValue);
                                         yield return new WaitForSeconds(0.3f);
                                     }
+
                                 }
+
 
 
                             }
                         }
                     }
-
+                    //yield return new WaitForSeconds(0.5f);
+                    //loadingData = false;
                     break;
             }
+
         }
+
+        yield return new WaitForSeconds(0.5f);
+        loadingData = false;
     }
 
 
@@ -109,6 +125,7 @@ public class CovalentManager : MonoBehaviour
             switch (webRequest.result)
             {
                 case UnityWebRequest.Result.ConnectionError:
+                    break;
                 case UnityWebRequest.Result.DataProcessingError:
                     Debug.LogError("Error: " + webRequest.error);
                     break;
@@ -122,7 +139,7 @@ public class CovalentManager : MonoBehaviour
 
                     if (_data.GetField("data").HasField("items"))
                     {
-                        
+
                         for (int i = 0; i < _data.GetField("data").GetField("items").list.Count; i++)
                         {
                             var _add = _data.GetField("data").GetField("items")[i].GetField("contract_address").stringValue.ToLower();
@@ -158,13 +175,14 @@ public class CovalentManager : MonoBehaviour
                         }
                     }
 
-                   
-                        if (MetaManager.insta)
-                        {
-                            MetaManager.insta.UpdatePlayerWorldProperties();
-                            Debug.Log("We UpdatePlayerWorldProperties");
-                        }
-                    
+
+                    if (MetaManager.insta)
+                    {
+                        MetaManager.insta.UpdatePlayerWorldProperties();
+                        Debug.Log("We UpdatePlayerWorldProperties");
+                       // if (MessaeBox.insta) MessaeBox.insta.OkButton();
+                    }
+
                     break;
             }
         }

@@ -33,16 +33,12 @@ public class StoreManager : MonoBehaviour
     private void OnEnable()
     {
         ClosePurchasePanel();
-        /*for (int i = 0; i < itemButtons.Length; i++) {
-            if (SingletonDataManager.metanftlocalData[i].imageTexture) {
-                itemButtons[i].GetComponent<RawImage>().texture = SingletonDataManager.metanftlocalData[i].imageTexture;
-            }
-        }
 
-        for (int i = 0; i < SingletonDataManager.myNFTData.Count; i++)
-        {
-           itemButtons[SingletonDataManager.myNFTData[i].itemid].interactable = false;
-        }*/
+        if (CovalentManager.loadingData) {
+            MessaeBox.insta.showMsg("Loading Data",true);
+            CloseItemPanel();
+            return;
+        }
 
 
         foreach (Transform child in itemParent)
@@ -129,7 +125,7 @@ public class StoreManager : MonoBehaviour
         itemPanelUI.SetActive(false);
         itemPurchaseUI.SetActive(false);
         Debug.Log("close");
-        CovalentManager.insta.GetNFTUserBalance();
+        if (!CovalentManager.loadingData) CovalentManager.insta.GetNFTUserBalance();
         foreach (Transform child in itemParent)
         {
             Destroy(child.gameObject);

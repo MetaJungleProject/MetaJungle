@@ -1,8 +1,6 @@
 using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
 using TMPro;
+using UnityEngine;
 
 public class MessaeBox : MonoBehaviour
 {
@@ -11,21 +9,39 @@ public class MessaeBox : MonoBehaviour
     [SerializeField] GameObject okBtn;
     [SerializeField] TMP_Text msgText;
 
+
+
     private void Awake()
     {
         insta = this;
         msgBoxUI.SetActive(false);
     }
-    public void showMsg(string _msg, bool showBtn) {
+    public void showMsg(string _msg, bool showBtn)
+    {
+        StopAllCoroutines();
+
         msgBoxUI.SetActive(true);
         if (showBtn) okBtn.SetActive(true);
         else okBtn.SetActive(false);
 
         msgText.text = _msg;
 
+        StartCoroutine(WaitToShowOk());
     }
 
-    public void OkButton() {
+    IEnumerator WaitToShowOk()
+    {
+        if (!okBtn.activeSelf)
+        {
+            yield return new WaitForSeconds(40);
+            okBtn.SetActive(true);
+        }
+
+    }
+
+    public void OkButton()
+    {
+        StopAllCoroutines();
         msgBoxUI.SetActive(false);
     }
 }

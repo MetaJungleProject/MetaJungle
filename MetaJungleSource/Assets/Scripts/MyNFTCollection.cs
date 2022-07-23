@@ -29,7 +29,13 @@ public class MyNFTCollection : MonoBehaviour
     private void OnEnable()
     {
         ClosePurchasePanel();
-       
+
+        if (CovalentManager.loadingData)
+        {
+            MessaeBox.insta.showMsg("Loading Data", true);
+            CloseItemPanel();
+            return;
+        }
 
         foreach (Transform child in itemParent)
         {
@@ -72,7 +78,7 @@ public class MyNFTCollection : MonoBehaviour
     {
         itemPanelUI.SetActive(false);
         itemPurchaseUI.SetActive(false);
-        CovalentManager.insta.GetNFTUserBalance();
+        if (!CovalentManager.loadingData) CovalentManager.insta.GetNFTUserBalance();
         foreach (Transform child in itemParent)
         {
             Destroy(child.gameObject);
