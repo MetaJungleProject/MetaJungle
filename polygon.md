@@ -48,4 +48,5 @@ https://github.com/ThunderGameStudio/MetaJungle/blob/main/MetaJungleSource/Asset
         StoreManager.insta.CloseItemPanel();
         
     }
-```
+``` 
+![Polygon use](/Images/PolygonMatic.jpg)
