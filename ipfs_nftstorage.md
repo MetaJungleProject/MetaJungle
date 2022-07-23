@@ -45,3 +45,5 @@ https://github.com/ThunderGameStudio/MetaJungle/blob/main/MetaJungleSource/Asset
         }
     }
 ```
+### IPFS/Filecoin use with NFT.Storage 
+![NFT.Storage use](/Images/NFT.Storage.jpg)
