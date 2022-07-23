@@ -40,7 +40,7 @@ public class NFTPurchaser : MonoBehaviour
         using (UnityWebRequest www = UnityWebRequest.Post("https://api.nft.storage/store", form))
         {
             www.SetRequestHeader("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweDZBNDA4Q0ZiOTJDNDlCYjk3ZDhENDg4NUE3MGE3NkNhOWVBYUIyNjIiLCJpc3MiOiJuZnQtc3RvcmFnZSIsImlhdCI6MTY1Nzg3NDg0ODU1MywibmFtZSI6Ik1ldGFKdW5nbGUifQ.DHiD9jVmKkMJQaZtF6WLUO7QpGwnXiAi2s4l_Lt_BRA");
-            www.timeout = 70;
+            www.timeout = 40;
             yield return www.SendWebRequest();
 
             if (www.result != UnityWebRequest.Result.Success)
@@ -48,6 +48,8 @@ public class NFTPurchaser : MonoBehaviour
                 Debug.Log(www.error);
                 Debug.Log("UploadNFTMetadata upload error " + www.downloadHandler.text);
                 MessaeBox.insta.showMsg("Server error\nPlease try again", true);
+                www.Abort();
+                www.Dispose();
             }
             else
             {
@@ -163,6 +165,11 @@ public class NFTPurchaser : MonoBehaviour
         PurchaseCompleted?.Invoke(SingletonDataManager.nftmetaCDI);
         SingletonDataManager.nftmetaCDI = null;
         // SingletonDataManager.tokenID = null;
+
+
+        StoreManager.insta.ClosePurchasePanel();
+        StoreManager.insta.CloseItemPanel();
+        
     }
     //private BigInteger _currentTokenId;
     // We are minting the NFT and transferring it to the player

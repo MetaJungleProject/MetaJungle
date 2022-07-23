@@ -20,7 +20,7 @@ public class SingletonDataManager : MonoBehaviour
     public static string useruniqid;
     [SerializeField]
     public static List<MetaJungleNFTLocal> metanftlocalData = new List<MetaJungleNFTLocal>();
-    public List<MetaJungleNFTLocal> metanftlocalData2 = new List<MetaJungleNFTLocal>();
+    //public List<MetaJungleNFTLocal> metanftlocalData2 = new List<MetaJungleNFTLocal>();
     public static List<MyMetadataNFT> myNFTData = new List<MyMetadataNFT>();
     public List<MyMetadataNFT> otherPlayerNFTData = new List<MyMetadataNFT>();
     public static bool isMyVirtualWorld = true;
@@ -49,8 +49,8 @@ public class SingletonDataManager : MonoBehaviour
             Destroy(gameObject);
             return;
         }
-
-        RequestMic();
+        Moralis.Start();
+        
     }
 
     private void OnEnable()
@@ -74,15 +74,15 @@ public class SingletonDataManager : MonoBehaviour
         // jigar
         if (Application.platform != RuntimePlatform.WebGLPlayer)
         {
-            if (QualitySettings.vSyncCount > 0)
-                Application.targetFrameRate = 60;
-            else
-                Application.targetFrameRate = -1;
+           // if (QualitySettings.vSyncCount > 0)
+           //     Application.targetFrameRate = 60;
+            //else
+            //    Application.targetFrameRate = -1;
         }
 
+        Application.targetFrameRate = 40;
 
 
-        Moralis.Start();
         //getUserDataonStart();
 
         //JsonReader jr = JSON. JsonConvert.DeserializeObject(jsonData);
@@ -90,7 +90,9 @@ public class SingletonDataManager : MonoBehaviour
 
         //long tokenId = MoralisTools.ConvertStringToLong(jsonData);
         // Debug.Log(tokenId);
-       // Invoke("RequestMic", 2);
+        // Invoke("RequestMic", 2);
+
+        RequestMic();
 
     }
 
@@ -231,7 +233,7 @@ public class SingletonDataManager : MonoBehaviour
             }
         }
 
-        metanftlocalData2 = metanftlocalData;
+        //metanftlocalData2 = metanftlocalData;
         Debug.Log("DAta is " + JsonConvert.SerializeObject(metanftlocalData));
         GetAllNFTImg();
         // return false;

@@ -89,6 +89,7 @@ public class UIManager : MonoBehaviour
             EditUserProfile();
         }
 
+        recorder.StopRecord();
     }
 
 
@@ -241,12 +242,15 @@ public class UIManager : MonoBehaviour
     {
         if (recorder.recording)
         {
-            recorder.recording = false;
+            //recorder.recording = false;
             recorderImg.sprite = recorderSprites[1];
+
+            recorder.StopRecord();
         }
         else
         {
-            recorder.recording = true;
+            //recorder.recording = true;
+            recorder.StartRecord();
             recorderImg.sprite = recorderSprites[0];
         }
 

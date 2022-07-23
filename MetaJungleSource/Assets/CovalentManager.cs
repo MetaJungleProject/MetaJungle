@@ -17,7 +17,7 @@ public class CovalentManager : MonoBehaviour
 
     public List<string> myTokenID = new List<string>();
 
-    public List<MyMetadataNFT> myNFTData = new List<MyMetadataNFT>();
+    //public List<MyMetadataNFT> myNFTData = new List<MyMetadataNFT>();
 
     private void Awake()
     {
@@ -31,9 +31,12 @@ public class CovalentManager : MonoBehaviour
     }
     IEnumerator GetNFTBalance()
     {
-        yield return new WaitForSeconds(1f);
+        Debug.Log("GetNFTBalance");
+        //yield return new WaitForSeconds(1f);
         using (UnityWebRequest webRequest = UnityWebRequest.Get(BalanceFetchPreURL + SingletonDataManager.userethAdd + BalanceFetchPostURL))
         {
+
+            webRequest.timeout = 60;
             // Request and wait for the desired page.
             yield return webRequest.SendWebRequest();
 
@@ -56,6 +59,9 @@ public class CovalentManager : MonoBehaviour
 
                     if (_data.GetField("data").HasField("items"))
                     {
+
+                        myTokenID.Clear();
+                        SingletonDataManager.myNFTData.Clear();
                         for (int i = 0; i < _data.GetField("data").GetField("items").list.Count; i++)
                         {
                             var _add = _data.GetField("data").GetField("items")[i].GetField("contract_address").stringValue.ToLower();
@@ -64,13 +70,13 @@ public class CovalentManager : MonoBehaviour
                                 if (_data.GetField("data").GetField("items")[i].GetField("nft_data").list.Count > 0)
                                 {
                                     Debug.Log("Found :" + _add + " | NFT" + _data.GetField("data").GetField("items")[i].GetField("nft_data").list.Count);
-                                    myNFTData.Clear();
+                                    myTokenID.Clear();
 
                                     for (int j = 0; j < _data.GetField("data").GetField("items")[i].GetField("nft_data").list.Count; j++)
                                     {
                                         myTokenID.Add(_data.GetField("data").GetField("items")[i].GetField("nft_data")[j].GetField("token_id").stringValue);
                                         GetNFTMetaDataDetails(_data.GetField("data").GetField("items")[i].GetField("nft_data")[j].GetField("token_id").stringValue);
-                                        yield return new WaitForSeconds(0.5f);
+                                        yield return new WaitForSeconds(0.3f);
                                     }
                                 }
 
@@ -85,7 +91,7 @@ public class CovalentManager : MonoBehaviour
     }
 
 
-    public void GetNFTMetaDataDetails(string _tid)
+    void GetNFTMetaDataDetails(string _tid)
     {
         StartCoroutine(GetNFTMetaData(_tid));
     }
@@ -93,6 +99,7 @@ public class CovalentManager : MonoBehaviour
     {
         using (UnityWebRequest webRequest = UnityWebRequest.Get(GetMetaDataPreURL + SingletonDataManager.insta.contract_ethAddress + GetMetaDataMidURL + _tokenid + GetMetaDataPostURL))
         {
+            webRequest.timeout = 30;
             // Request and wait for the desired page.
             yield return webRequest.SendWebRequest();
 
@@ -115,6 +122,7 @@ public class CovalentManager : MonoBehaviour
 
                     if (_data.GetField("data").HasField("items"))
                     {
+                        
                         for (int i = 0; i < _data.GetField("data").GetField("items").list.Count; i++)
                         {
                             var _add = _data.GetField("data").GetField("items")[i].GetField("contract_address").stringValue.ToLower();

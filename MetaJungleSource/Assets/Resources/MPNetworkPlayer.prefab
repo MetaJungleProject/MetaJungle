@@ -4212,11 +4212,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 6074239116653777065, guid: 2553cec8fdb3eb643bbe9f2ec880c472, type: 3}
   m_PrefabInstance: {fileID: 6251816240675018329}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &5510429854105370539 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 1925873226565265906, guid: 2553cec8fdb3eb643bbe9f2ec880c472, type: 3}
-  m_PrefabInstance: {fileID: 6251816240675018329}
-  m_PrefabAsset: {fileID: 0}
 --- !u!114 &5510429854105370528 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1925873226565265913, guid: 2553cec8fdb3eb643bbe9f2ec880c472, type: 3}
@@ -4236,6 +4231,11 @@ CharacterController:
 --- !u!4 &5130491048800822545 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1293029876712600392, guid: 2553cec8fdb3eb643bbe9f2ec880c472, type: 3}
+  m_PrefabInstance: {fileID: 6251816240675018329}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &5510429854105370539 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1925873226565265906, guid: 2553cec8fdb3eb643bbe9f2ec880c472, type: 3}
   m_PrefabInstance: {fileID: 6251816240675018329}
   m_PrefabAsset: {fileID: 0}
 --- !u!114 &1556050202161995983

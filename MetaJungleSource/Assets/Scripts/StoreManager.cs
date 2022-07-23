@@ -45,9 +45,9 @@ public class StoreManager : MonoBehaviour
         }*/
 
 
-        foreach (Transform t in itemParent)
+        foreach (Transform child in itemParent)
         {
-            Destroy(t.gameObject);
+            Destroy(child.gameObject);
         }
 
         for (int i = 0; i < SingletonDataManager.metanftlocalData.Count; i++)
@@ -121,11 +121,19 @@ public class StoreManager : MonoBehaviour
     {
         itemPanelUI.SetActive(true);
         itemPurchaseUI.SetActive(false);
+        
     }
 
     public void CloseItemPanel()
     {
         itemPanelUI.SetActive(false);
         itemPurchaseUI.SetActive(false);
+        Debug.Log("close");
+        CovalentManager.insta.GetNFTUserBalance();
+        foreach (Transform child in itemParent)
+        {
+            Destroy(child.gameObject);
+        }
+        gameObject.SetActive(false);
     }
 }

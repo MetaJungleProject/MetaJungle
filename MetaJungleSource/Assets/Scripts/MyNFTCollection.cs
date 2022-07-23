@@ -29,8 +29,11 @@ public class MyNFTCollection : MonoBehaviour
     private void OnEnable()
     {
         ClosePurchasePanel();
-        foreach (GameObject g in itemParent) {
-            Destroy(g);
+       
+
+        foreach (Transform child in itemParent)
+        {
+            Destroy(child.gameObject);
         }
 
         for (int i = 0; i < SingletonDataManager.myNFTData.Count; i++)
@@ -62,11 +65,18 @@ public class MyNFTCollection : MonoBehaviour
     {
         itemPanelUI.SetActive(true);
         itemPurchaseUI.SetActive(false);
+      
     }
 
     public void CloseItemPanel()
     {
         itemPanelUI.SetActive(false);
         itemPurchaseUI.SetActive(false);
+        CovalentManager.insta.GetNFTUserBalance();
+        foreach (Transform child in itemParent)
+        {
+            Destroy(child.gameObject);
+        }
+        gameObject.SetActive(false);
     }
 }
