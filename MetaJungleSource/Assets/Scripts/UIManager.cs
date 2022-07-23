@@ -84,7 +84,8 @@ public class UIManager : MonoBehaviour
         UpdatePlayerUIData(true, true);
         UpdateUserName(SingletonDataManager.username, SingletonDataManager.userethAdd);
 
-        if (PlayerPrefs.GetInt("init", 0) == 0) {
+        if (PlayerPrefs.GetInt("init", 0) == 0)
+        {
             PlayerPrefs.SetInt("init", 1);
             EditUserProfile();
         }
@@ -242,14 +243,14 @@ public class UIManager : MonoBehaviour
     {
         if (recorder.recording)
         {
-            //recorder.recording = false;
+            recorder.recording = false;
             recorderImg.sprite = recorderSprites[1];
-
             recorder.StopRecord();
         }
         else
         {
-            //recorder.recording = true;
+            recorder.RefreshMicrophones();
+            recorder.recording = true;
             recorder.StartRecord();
             recorderImg.sprite = recorderSprites[0];
         }

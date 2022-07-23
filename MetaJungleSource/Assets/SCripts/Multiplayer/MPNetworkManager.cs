@@ -169,8 +169,8 @@ public class MPNetworkManager : MonoBehaviourPunCallbacks
     {
         NPSpawner.GeneratePlayer();
         rec.RefreshMicrophones();
-        rec.StartRecord();
-        UIManager.insta.MuteUnmute();
+       // rec.StartRecord();
+        //UIManager.insta.MuteUnmute();
         MetaManager.insta.UpdatePlayerWorldProperties();
         if (!UIManager.insta.GameplayUI.activeSelf) UIManager.insta.GameplayUI.SetActive(true);
         UIManager.insta.StartUI.SetActive(false);
