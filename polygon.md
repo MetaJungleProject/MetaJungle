@@ -1,6 +1,7 @@
 ## Polygon mumbai
 
 ### Contract Address : 0xf639f267ad2495166037b863bec81fe6151591fb
+### Blockchain: Polygon - Testnet
 ### Explore : https://mumbai.polygonscan.com/address/0xf639f267ad2495166037b863bec81fe6151591fb
 
 https://github.com/ThunderGameStudio/MetaJungle/blob/main/MetaJungleSource/Assets/Scripts/NFTPurchaser.cs
