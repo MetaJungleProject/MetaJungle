@@ -16,3 +16,21 @@ Meta Jungle is metaverse open world game, where user can play, challenge each ot
 - Covalent to get user NFT balanace and NFT metadata
 - Remix IDE used to create smart contract for ERC-1155
 - Moralis to manage gameplay data
+
+### Metaverse 
+![Metaverse Game](/Images/MetaVerse.jpg)
+
+### Metaverse 
+![Covalent Use](/Images/Covalent.jpg)
+
+### Metaverse 
+![Multiplayer challenge](/Images/Challenge.jpg)
+
+### Metaverse 
+![NFT.Storage use](/Images/NFT.Storage.jpg)
+
+### Metaverse 
+![Polygon use](/Images/Polygon.jpg)
+
+### Metaverse 
+![Virtual World From NFT](/Images/VirtualWorld.jpg)
