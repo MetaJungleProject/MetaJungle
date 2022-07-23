@@ -23,17 +23,17 @@ Blockchain: Polygon - Testnet : https://mumbai.polygonscan.com/address/0xf639f26
 ### Metaverse 
 ![Metaverse Game](/Images/MetaVerse.jpg)
 
-### Metaverse 
+### Covalent Use 
 ![Covalent Use](/Images/Covalent.jpg)
 
-### Metaverse 
+### Multiplayer Challenge 
 ![Multiplayer challenge](/Images/Challenge.jpg)
 
-### Metaverse 
+### IPFS/Filecoin use with NFT.Storage 
 ![NFT.Storage use](/Images/NFT.Storage.jpg)
 
-### Metaverse 
+### Polygon Mumbai Use  
 ![Polygon use](/Images/PolygonMatic.jpg)
 
-### Metaverse 
+### Virtual World Created From NFT 
 ![Virtual World From NFT](/Images/VirtualWorld.jpg)
