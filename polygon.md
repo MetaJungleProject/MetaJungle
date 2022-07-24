@@ -49,4 +49,47 @@ https://github.com/ThunderGameStudio/MetaJungle/blob/main/MetaJungleSource/Asset
         
     }
 ``` 
+
+``` c#
+   // We are minting the NFT and transferring it to the player
+    private async Task<string> PurchaseItemFromContract(BigInteger tokenId, string metadataUrl)
+    {
+
+#if UNITY_WEBGL
+        string[] data = new string[0];
+        // long currentTime = DateTime.Now.Ticks;
+        //_currentTokenId = new BigInteger(currentTime);
+
+        object[] parameters = {
+            tokenId,
+            metadataUrl,
+            data
+        };
+#else
+        //string[] data = new string[0];
+        byte[] data = Array.Empty<byte>();
+        // long currentTime = DateTime.Now.Ticks;
+        //_currentTokenId = new BigInteger(currentTime);
+
+        object[] parameters = {
+            tokenId,
+            metadataUrl,
+            data
+        };
+#endif
+
+        // Set gas estimate
+        HexBigInteger value = new HexBigInteger(0);
+        HexBigInteger gas = new HexBigInteger(0);
+        HexBigInteger gasPrice = new HexBigInteger(0);
+
+        Debug.Log("DataTRansfer " + JsonConvert.SerializeObject(parameters));
+
+
+        string resp = await Moralis.ExecuteContractFunction(SingletonDataManager.insta.contract_ethAddress, SingletonDataManager.insta.contract_abi, "buyItem", parameters, value, gas, gasPrice);
+
+
+        return resp;
+    }
+```
 ![Polygon use](/Images/PolygonMatic.jpg)
