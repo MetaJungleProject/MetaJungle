@@ -22,9 +22,6 @@ contract MyMetaJungleNFTNew is ERC1155 , Ownable  {
     constructor() ERC1155("")  {}
 
     function buyItem(uint256 _tokenId, string memory _tokenUrl, bytes memory data) public /*onlyOwner*/{
-        
-        //IMPORTANT Implement own security (set ownership to users). Not production ready contract
-        
         _tokenUrls[_tokenId] = _tokenUrl;
         _mint(msg.sender, _tokenId, 1, data);
     }
