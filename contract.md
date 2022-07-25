@@ -13,7 +13,7 @@ import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contr
 import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/utils/Strings.sol";
 
 
-contract MyMetaJungle is ERC1155 , Ownable  {
+contract MyMetaJungleNFTNew is ERC1155 , Ownable  {
     
     string public name = "My Meta Jungle Item Shop 01";
 
@@ -22,6 +22,9 @@ contract MyMetaJungle is ERC1155 , Ownable  {
     constructor() ERC1155("")  {}
 
     function buyItem(uint256 _tokenId, string memory _tokenUrl, bytes memory data) public /*onlyOwner*/{
+        
+        //IMPORTANT Implement own security (set ownership to users). Not production ready contract
+        
         _tokenUrls[_tokenId] = _tokenUrl;
         _mint(msg.sender, _tokenId, 1, data);
     }
