@@ -337,19 +337,7 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
 
                 LeanTween.scale(shootingAreaBtn.gameObject, Vector2.one * 1.6f, 1f).setEasePunch().setFrom(Vector2.one);
             }
-            else if (other.CompareTag("throwcan"))
-            {
-                AudioManager.insta.playSound(15);
-
-                shootingAreaBtn.onClick.RemoveAllListeners();
-                shootBulletBtn.onClick.RemoveAllListeners();
-                shootingAreaBtn.onClick.AddListener(GoToThrowCan);
-                shootBulletBtn.onClick.AddListener(ThrowRock);
-
-                shootingAreaBtn.gameObject.SetActive(true);
-
-                LeanTween.scale(shootingAreaBtn.gameObject, Vector2.one * 1.6f, 1f).setEasePunch().setFrom(Vector2.one);
-            }
+           
 
         }
         else
