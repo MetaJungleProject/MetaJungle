@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -19,39 +20,56 @@ public class MyNFTCollection : MonoBehaviour
     [SerializeField] RawImage purchaseItemImg;
     [SerializeField] TMP_Text purchaseItemText;
 
+
+    [SerializeField] GameObject mainPanel;
+    [SerializeField] GameObject loadingPanel;
+
     int currentSelectedItem = -1;
 
     private void Awake()
     {
         insta = this;
+        this.gameObject.SetActive(false);
     }
 
     private void OnEnable()
     {
         ClosePurchasePanel();
 
-        if (CovalentManager.loadingData)
-        {
-            MessaeBox.insta.showMsg("Loading Data", true);
-            CloseItemPanel();
-            return;
-        }
 
+        mainPanel.SetActive(false);
+        loadingPanel.SetActive(true);
+        
         foreach (Transform child in itemParent)
         {
             Destroy(child.gameObject);
         }
+        CovalentManager.insta.GetNFTUserBalance();
 
-        for (int i = 0; i < SingletonDataManager.myNFTData.Count; i++)
+        StopCoroutine(instantiateShop());
+        StartCoroutine(instantiateShop());
+
+
+      
+       
+    }
+    IEnumerator instantiateShop()
+    {
+        yield return new WaitUntil(() => !CovalentManager.insta.loadingData);
+
+        for (int i = 0; i < CovalentManager.insta.myTokenID.Count; i++)
         {
             var temp = Instantiate(itemButtonPrefab, itemParent);
-            temp.GetComponent<RawImage>().texture = SingletonDataManager.metanftlocalData[SingletonDataManager.myNFTData[i].itemid].imageTexture;
-            var tempNo = i;
+            temp.GetComponent<RawImage>().texture = DatabaseManager.allMetaDataServer[Int32.Parse(CovalentManager.insta.myTokenID[i]) - 400].imageTexture;
+            var tempNo = Int32.Parse(CovalentManager.insta.myTokenID[i]) - 400;
             var tempTexture = temp.GetComponent<RawImage>().texture;
             temp.GetComponent<Button>().onClick.AddListener(() => SelectItem(tempNo, tempTexture));
         }
 
-       
+
+        loadingPanel.SetActive(false);
+        mainPanel.SetActive(true);
+
     }
 
     public void SelectItem(int _no, Texture _texture)
@@ -61,11 +79,8 @@ public class MyNFTCollection : MonoBehaviour
         itemPanelUI.SetActive(false);
         itemPurchaseUI.SetActive(true);
         purchaseItemImg.texture = _texture;// itemButtons[_no].GetComponent<RawImage>().texture;
-        purchaseItemText.text = SingletonDataManager.myNFTData[_no].description;
-
+        purchaseItemText.text = DatabaseManager.allMetaDataServer[_no].description;
     }
-
-
 
     public void ClosePurchasePanel()
     {
@@ -78,7 +93,7 @@ public class MyNFTCollection : MonoBehaviour
     {
         itemPanelUI.SetActive(false);
         itemPurchaseUI.SetActive(false);
-        if (!CovalentManager.loadingData) CovalentManager.insta.GetNFTUserBalance();
+       /// if (!CovalentManager.loadingData) CovalentManager.insta.GetNFTUserBalance();
         foreach (Transform child in itemParent)
         {
             Destroy(child.gameObject);

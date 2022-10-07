@@ -27,6 +27,7 @@ public class ShootArea : MonoBehaviour
                 spawn_time = 0;
                 Vector3 offset = Random.insideUnitSphere * 10f;
                 offset.y = 1.5f;
+                offset.z = Mathf.Clamp(offset.x, -2, 2);
                 PhotonNetwork.Instantiate(balloon_prefab.name, spawn_balloon_location +offset, balloon_prefab.transform.rotation);
             }
         }

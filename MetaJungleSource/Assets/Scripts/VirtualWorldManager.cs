@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 public class VirtualWorldManager : MonoBehaviour
@@ -40,13 +41,13 @@ public class VirtualWorldManager : MonoBehaviour
         for (int i = 0; i < userworldObj.Count; i++)
         {
             userworldObj[i].SetActive(false);
-            if (SingletonDataManager.isMyVirtualWorld)
+            if (CovalentManager.isMyVirtualWorld)
             {
 
 
-                for (int j = 0; j < SingletonDataManager.myNFTData.Count; j++)
+                for (int j = 0; j < CovalentManager.insta.myTokenID.Count; j++)
                 {
-                    if (SingletonDataManager.myNFTData[j].itemid == i)
+                    if (Int32.Parse(CovalentManager.insta.myTokenID[j])-400 == i)
                     {
                         userworldObj[i].SetActive(true);
                     }
@@ -54,9 +55,9 @@ public class VirtualWorldManager : MonoBehaviour
             }
             else
             {
-                for (int j = 0; j < SingletonDataManager.insta.otherPlayerNFTData.Count; j++)
+                for (int j = 0; j < CovalentManager.insta.otherTokenID.Count; j++)
                 {
-                    if (SingletonDataManager.insta.otherPlayerNFTData[j].itemid == i)
+                    if (Int32.Parse(CovalentManager.insta.otherTokenID[j])-400 == i)
                     {
                         userworldObj[i].SetActive(true);
                     }
@@ -64,17 +65,20 @@ public class VirtualWorldManager : MonoBehaviour
             }
         }
 
+        MetaManager.insta.myPlayer.GetComponent<CharacterController>().enabled = false;
         MetaManager.insta.myPlayer.transform.position = playerPoz;
         MetaManager.insta.myPlayer.transform.rotation = playerRot;
+        MetaManager.insta.myPlayer.GetComponent<CharacterController>().enabled = true;
     }
 
 
     private void OnDisable()
     {
-
+        MetaManager.insta.myPlayer.GetComponent<CharacterController>().enabled = false;
         //MetaManager.insta.myPlayer.transform.SetPositionAndRotation(playerLastLocation.position, playerLastLocation.rotation);
         MetaManager.insta.myPlayer.transform.position = playerLastPoz;
         MetaManager.insta.myPlayer.transform.rotation = playerLastRot;
+        MetaManager.insta.myPlayer.GetComponent<CharacterController>().enabled = true;
 
 
         homeBtn.SetActive(false);

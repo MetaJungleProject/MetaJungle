@@ -63,7 +63,7 @@ public class MPNetworkManager : MonoBehaviourPunCallbacks
 
 
         //PhotonNetwork.JoinOrCreateRoom("private", myRoom, TypedLobby.Default);
-        PhotonNetwork.NickName = UIManager.username;
+        PhotonNetwork.NickName = DatabaseManager.Instance.GetLocalData().name;
         JoinRandomRoom();
     }
 
@@ -92,7 +92,7 @@ public class MPNetworkManager : MonoBehaviourPunCallbacks
     #region RandomRoom
     private void JoinRandomRoom()
     {
-        UIManager.insta.UpdateUserName("Entering to Meta Jungle");
+        UIManager.insta.UpdateUserName("Entering to Leisure Metaverse");
         //int temoNo = Random.Range(0, 2);
         //Debug.Log("PlayerNo " + temoNo);
         Hashtable hash = new Hashtable();
@@ -172,7 +172,11 @@ public class MPNetworkManager : MonoBehaviourPunCallbacks
        // rec.StartRecord();
         //UIManager.insta.MuteUnmute();
         MetaManager.insta.UpdatePlayerWorldProperties();
-        if (!UIManager.insta.GameplayUI.activeSelf) UIManager.insta.GameplayUI.SetActive(true);
+        if (!UIManager.insta.GameplayUI.activeSelf)
+        {
+            UIManager.insta.GameplayUI.SetActive(true);
+            DailyPrize.insta.DailyShowUI(true);
+        }
         UIManager.insta.StartUI.SetActive(false);
     }
 

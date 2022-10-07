@@ -137,6 +137,9 @@ namespace StarterAssets
             }
         }
 
+
+        public Vector3 impact;
+        public float AttackForce=3f;
         private void Start()
         {
             _cinemachineTargetYaw = CinemachineCameraTarget.transform.rotation.eulerAngles.y;
@@ -161,11 +164,12 @@ namespace StarterAssets
             _fallTimeoutDelta = FallTimeout;
         }
 
-        
 
+
+        public bool can_move=true;
         private void Update()
         {
-            if (UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject()) return;
+           // if (UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject()) return;
 
             
 
@@ -173,12 +177,12 @@ namespace StarterAssets
 
             JumpAndGravity();
             GroundedCheck();
-           if(!MetaManager.isAtttacking) Move();
+           if(!MetaManager.isAtttacking && can_move) Move();
         }
 
         private void LateUpdate()
         {
-            if (UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject()) return;
+            //if (UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject()) return;
             CameraRotation();
         }
 
@@ -295,11 +299,17 @@ namespace StarterAssets
             _controller.Move(targetDirection.normalized * (_speed * Time.deltaTime) +
                              new Vector3(0.0f, _verticalVelocity, 0.0f) * Time.deltaTime);
 
+            
+
             // update animator if using character
             if (_hasAnimator)
             {
                 _animator.SetFloat(_animIDSpeed, _animationBlend);
                 _animator.SetFloat(_animIDMotionSpeed, inputMagnitude);
+            }
+            if (impact.magnitude > 0)
+            {
+                _controller.Move(impact * AttackForce * Time.deltaTime);
             }
         }
         public void ResetRotation(float yAngle,float time)

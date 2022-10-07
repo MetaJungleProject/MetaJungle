@@ -7,6 +7,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
@@ -30,8 +31,10 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
 
     [SerializeField] GameObject virtualWorldUI;
     [SerializeField] GameObject meetUI;
+    [SerializeField] GameObject UiParent;
 
     [SerializeField] GameObject WeaponCollider;
+    [SerializeField] GameObject handAttackCollider;
 
 
 
@@ -41,10 +44,14 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
     [SerializeField] GameObject weaponObj;
     [SerializeField] GameObject[] weaponParent;
     [SerializeField] GameObject[] weapons;
+    [SerializeField] GameObject throwableObject;
     [SerializeField] Vector3[] weaponStartPosz;
     [SerializeField] Quaternion[] weaponStartRotz;
+    [SerializeField] Vector3 throwableStartPosz;
+    [SerializeField] Quaternion throwableStartRotz;
     Vector3 weaponLastPoz;
     Quaternion weaponLastRot;
+    [SerializeField] float throwForce;
 
 
     //ui manger
@@ -66,7 +73,9 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
     [SerializeField] Vector3 aimWorldPos;
     [SerializeField] GameObject ParticleEffect;
     Cinemachine3rdPersonFollow followCam;
-    
+
+
+    LocalData localData;
 
 
     private void Awake()
@@ -82,7 +91,7 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
 
     private void Attack_performed(InputAction.CallbackContext obj)
     {
-        if (UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject()) return;
+        if (obj.canceled) return;
         tController.isDragging = true;
     }
     private void Start()
@@ -101,11 +110,14 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
             weaponStartPosz[i] = weapons[i].transform.localPosition;
             weaponStartRotz[i] = weapons[i].transform.localRotation;
         }
-        
+        throwableStartPosz = throwableObject.transform.localPosition;
+        throwableStartRotz = throwableObject.transform.localRotation;
+
 
 
         if (pview.IsMine)
         {
+
 
             _customInput.Player.Attack.performed += Attack_performed;
             _customInput.Player.Attack.canceled += Attack_canceled;
@@ -113,10 +125,12 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
             MetaManager.insta.myPlayer = gameObject;
             MetaManager.insta.playerCam.Follow = vCamTarget.transform;
             MetaManager.insta.fpsCam.Follow = vCamTarget.transform;
+            MetaManager.insta.throwCam.Follow = vCamTarget.transform;
             MetaManager.insta.uiInput.starterAssetsInputs = _inputs;
 
             CameraSwitcher.Register(MetaManager.insta.playerCam);
             CameraSwitcher.Register(MetaManager.insta.fpsCam);
+            CameraSwitcher.Register(MetaManager.insta.throwCam);
             CameraSwitcher.SwitchCamera(MetaManager.insta.playerCam);
 
             meetObj.SetActive(true);
@@ -138,7 +152,8 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
             shootBulletBtn.onClick.AddListener(ShootBullet);
 
 
-
+            localData = DatabaseManager.Instance.GetLocalData();
+            UIManager.insta.UpdatePlayerUIData(true, localData);
 
         }
         else
@@ -177,6 +192,11 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
         meetUI.transform.LookAt(MetaManager.insta.myCam.transform);
         meetUI.transform.rotation = Quaternion.LookRotation(MetaManager.insta.myCam.transform.forward);
 
+        UiParent.transform.LookAt(MetaManager.insta.myCam.transform);
+        UiParent.transform.rotation = Quaternion.LookRotation(MetaManager.insta.myCam.transform.forward);
+
+        
+
         virtualWorldUI.transform.LookAt(MetaManager.insta.myCam.transform);
         virtualWorldUI.transform.rotation = Quaternion.LookRotation(MetaManager.insta.myCam.transform.forward);
 
@@ -185,6 +205,20 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
 
     }
 
+    IEnumerator ResetAttack()
+    {
+        yield return new WaitForSeconds(0.15f);
+        handAttackCollider.SetActive(true);
+
+        yield return new WaitForSeconds(0.16f);
+
+        myAnim.SetBool("attack", false);
+        // AudioManager.insta.playSound(8);
+        handAttackCollider.SetActive(false);
+         
+        
+
+    }
     private void Update()
     {
         if (pview.IsMine)
@@ -201,13 +235,28 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
                 }
             }
 
-            if (_customInput.Player.Attack.triggered && tController.Grounded && MetaManager.isFighting && !myAnim.GetBool("attack"))
+            if (_customInput.Player.Attack.triggered && tController.Grounded && !myAnim.GetBool("attack"))
             {
-                myAnim.SetBool("attack", true);
-                StartCoroutine(waitForEnd(myAnim.GetCurrentAnimatorStateInfo(0).length));
-                AudioManager.insta.playSound(8);
-                WeaponCollider.SetActive(true);
-                Debug.Log("Attack Collider");
+                if (!EventSystem.current.IsPointerOverGameObject())
+                {
+                    if (MetaManager.isFighting)
+                    {
+                        myAnim.SetBool("attack", true);
+                        StartCoroutine(waitForEnd(myAnim.GetCurrentAnimatorStateInfo(0).length));
+                        AudioManager.insta.playSound(8);
+                        WeaponCollider.SetActive(true);
+                        Debug.Log("Attack Collider");
+                    }
+                    else if (!inShootingMode)
+                    {
+                        myAnim.SetBool("attack", true);
+                        // StartCoroutine(waitForEnd(myAnim.GetCurrentAnimatorStateInfo(0).length));
+                        AudioManager.insta.playSound(8);
+                        //  handAttackCollider.SetActive(true);
+                        Debug.Log("handAttackCollider");
+                        StartCoroutine(ResetAttack());
+                    }
+                }
             }
             else
             {
@@ -221,28 +270,31 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
            
                 if (inShootingMode)
                 {
-
+                    aimWorldPos = cam.transform.position + cam.transform.forward * 200f;
                     Vector2 center = new Vector2(Screen.width / 2f, Screen.height / 2f);
                     Ray ray = cam.ScreenPointToRay(center);
                     if (Physics.Raycast(ray, out RaycastHit raycastHit, Mathf.Infinity, aimColliderMask))
                     {
                         aimWorldPos = raycastHit.point;                        
-                        crossHair.SetActive(true);
-                        
+                        crossHair.SetActive(true);                        
                     }
                     else
                     {
                         crossHair.SetActive(false);
                     }
 
-                    
                     if (_customInput.Player.Attack.triggered && shootBulletBtn.interactable && (!UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject()))
                     {
-                        ShootBullet();
+                        if (throwableObject.activeInHierarchy)
+                        {
+                            ThrowRock();
+                        }
+                        else
+                        {
+                            ShootBullet();
+                        }
                     }
                 }
-            
-
         }
 
         //if (!tController.Grounded)
@@ -274,7 +326,28 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
             }
             else if (other.CompareTag("shootingArea")) {
                 AudioManager.insta.playSound(15);
+                
+
+                shootingAreaBtn.onClick.RemoveAllListeners();
+                shootBulletBtn.onClick.RemoveAllListeners();
+                shootingAreaBtn.onClick.AddListener(GoToShootMode);
+                shootBulletBtn.onClick.AddListener(ShootBullet);
+
                 shootingAreaBtn.gameObject.SetActive(true);
+
+                LeanTween.scale(shootingAreaBtn.gameObject, Vector2.one * 1.6f, 1f).setEasePunch().setFrom(Vector2.one);
+            }
+            else if (other.CompareTag("throwcan"))
+            {
+                AudioManager.insta.playSound(15);
+
+                shootingAreaBtn.onClick.RemoveAllListeners();
+                shootBulletBtn.onClick.RemoveAllListeners();
+                shootingAreaBtn.onClick.AddListener(GoToThrowCan);
+                shootBulletBtn.onClick.AddListener(ThrowRock);
+
+                shootingAreaBtn.gameObject.SetActive(true);
+
                 LeanTween.scale(shootingAreaBtn.gameObject, Vector2.one * 1.6f, 1f).setEasePunch().setFrom(Vector2.one);
             }
 
@@ -339,6 +412,10 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
         {
             shootingAreaBtn.gameObject.SetActive(false);
         }
+        else if (other.CompareTag("throwcan"))
+        {
+            shootingAreaBtn.gameObject.SetActive(false);
+        }
     }
 
     #region weapons
@@ -389,25 +466,21 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
         AudioManager.insta.playSound(2);
         // MetaManager.insta.myPlayer.GetComponent<MyCharacter>().pview.RPC("RequestFightRPC", RpcTarget.All, pview.Owner.UserId);
         pview.RPC("RequestFightRPC", RpcTarget.All, pview.Owner.UserId);
-
         Debug.Log("RequestFight My " + MetaManager.insta.myPlayer.GetComponent<PhotonView>().Owner.UserId + " | figher " + MetaManager._fighterid);
-
         UIManager.insta.UpdateStatus("Fight request sent to\n" + pview.Owner.NickName);
+//        virtualWorldUI.SetActive(false);
     }
 
     public void VisitVirtualWorld()
     {
-
-        if (SingletonDataManager.insta.otherPlayerNFTData != null) SingletonDataManager.insta.otherPlayerNFTData.Clear();
-        SingletonDataManager.insta.otherPlayerNFTData = Newtonsoft.Json.JsonConvert.DeserializeObject<List<MyMetadataNFT>>(pview.Owner.CustomProperties["virtualworld"].ToString());
+        if (CovalentManager.insta.otherTokenID != null) CovalentManager.insta.otherTokenID.Clear();
+        CovalentManager.insta.otherTokenID = Newtonsoft.Json.JsonConvert.DeserializeObject<List<string>>(pview.Owner.CustomProperties["virtualworld"].ToString());
         Debug.Log("data" + pview.Owner.CustomProperties["virtualworld"].ToString());
 
-        if (SingletonDataManager.insta.otherPlayerNFTData != null) UIManager.insta.VisitOtherPlayerVirtualWorld();
+        if (CovalentManager.insta.otherTokenID != null) UIManager.insta.VisitOtherPlayerVirtualWorld();
         else MessaeBox.insta.showMsg("No virtual world item", true);
-
-
-
     }
+
     [PunRPC]
     void RequestFightRPC(string _uid, PhotonMessageInfo info)
     {
@@ -493,9 +566,11 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
                 {
                     Debug.Log("UserLost");
                     AudioManager.insta.playSound(7);
-                    SingletonDataManager.userData.fightLose++;
-                    SingletonDataManager.insta.UpdateUserDatabase();
+                    LocalData data = DatabaseManager.Instance.GetLocalData();
+                    data.gameLoss++;
+                    DatabaseManager.Instance.UpdateData(data);
                     UIManager.insta.ShowResult(1);
+                    UIManager.insta.UpdatePlayerUIData(true, data);
                 }
             }
 
@@ -504,9 +579,58 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
     }
     #endregion
 
+    #region Melee Attack 
+    [SerializeField] AnimationCurve punchEffect;
+    [PunRPC]
+    public void AttackRecieved(Vector3 triggerPoint)
+    {
+        MetaManager.insta.myPlayer.GetComponent<MyCharacter>().GotAttack(this.transform.position, triggerPoint);
+    }
+
+    public Vector3 impact = Vector3.zero;
+    public float AttackForce = 3f;
+    GameObject go;
+    public void GotAttack(Vector3 position, Vector3 triggerPoint)
+    {
+        if (playerNo == 0)
+        {
+            AudioManager.insta.playSound(0);
+        }
+        else
+        {
+            AudioManager.insta.playSound(1);
+        }
+
+        myAnim.SetBool("hit", true);
+        go = PhotonNetwork.Instantiate("HitParticle", triggerPoint, Quaternion.identity);
+
+        StartCoroutine(resetHitImpact(go.GetComponent<PhotonView>()));
+
+
+        tController.impact = (this.transform.position - position);
+        LeanTween.move(MetaManager.insta.tempObject, Vector3.zero, 0.3f).setFrom(impact).setEase(punchEffect).setOnUpdate((Vector3 pos) => {
+            tController.impact = pos;
+        }).setOnComplete(() => {
+            tController.impact = Vector3.zero;
+        });
+    }
+    IEnumerator resetHitImpact(PhotonView pv)
+    {
+        yield return new WaitForSeconds(0.1f);
+        myAnim.SetBool("hit", false);
+        yield return new WaitForSeconds(1f);
+
+        if (pv != null)
+        {
+            PhotonNetwork.Destroy(pv);
+        }
+    }
+    #endregion
+
     #region Balloon Shoot Area
 
-    [SerializeField] bool inShootingMode = false;    
+    public bool inShootingMode = false;
+    
     [SerializeField] float totalShootTime;
     [SerializeField] float currentShootTime;
     [SerializeField] int balloonBursted;   
@@ -532,11 +656,13 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
             PhotonNetwork.Destroy(pv);
         }
     }
+
+    
     private void GoToShootMode()
     {
        
         if (!inShootingMode)
-        {
+        {            
             Cursor.lockState = CursorLockMode.Locked;
             AudioManager.insta.playSound(10);
             AudioManager.insta.playSound(12);
@@ -565,14 +691,18 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
     {
         if (inShootingMode)
         {
+            bool won = false;
             Cursor.lockState = CursorLockMode.None;
             tController.isDragging = false;
             CameraSwitcher.SwitchCamera(MetaManager.insta.playerCam);
 
-            if (balloonBursted >= 5 && SingletonDataManager.insta)
+            if (balloonBursted >= 5 && DatabaseManager.Instance)
             {
-                SingletonDataManager.userData.score++;
-                SingletonDataManager.insta.UpdateUserDatabase();
+                won = true;
+                LocalData data = DatabaseManager.Instance.GetLocalData();
+                data.score++;
+                DatabaseManager.Instance.UpdateData(data);
+                UIManager.insta.UpdatePlayerUIData(true, data);
             }
 
             AudioManager.insta.playSound(11);
@@ -590,6 +720,8 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
             ToggleGun(false);
             Text_shootTimer.gameObject.SetActive(false);
             Text_shootCounter.gameObject.SetActive(false);
+
+            UIManager.insta.OpenGameCompleteUI(won, 0);
         }
     }
     IEnumerator LerpVector_Cam_Offset(Vector3 position, float time)
@@ -643,10 +775,7 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
         shootBulletBtn.interactable = true;
 
     }
-    private void StopShooting()
-    {
-        MetaManager.insta.ShootArea.GetComponent<SphereCollider>().isTrigger = true;
-    }
+       
 
     void ToggleGun(bool enableGun)
     {
@@ -681,6 +810,178 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
             weaponObj.SetActive(false);
         }
     }
+
+    #endregion
+
+    #region Throw Can
+
+    private void GoToThrowCan()
+    {
+
+        if (!inShootingMode)
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+            AudioManager.insta.playSound(10);
+            AudioManager.insta.playSound(12);
+
+            MetaManager.isShooting = true;
+            tController.isDragging = true;
+            //MetaManager.insta.ShootArea.GetComponent<SphereCollider>().isTrigger = false;
+            shootingAreaBtn.gameObject.SetActive(false);
+            shootBulletBtn.gameObject.SetActive(true);
+            crossHair.SetActive(true);         
+
+            CameraSwitcher.SwitchCamera(MetaManager.insta.throwCam);
+            //StartCoroutine(LerpVector_Cam_Offset(new Vector3(7.8f, 0.8f, 2.25f), 0.3f));         
+
+            currentShootTime = totalShootTime;
+            inShootingMode = true;
+
+            //SendShootAreaCode(pview.Owner.UserId,true);
+            pview.RPC("RPC_ToggleRock", RpcTarget.Others, pview.Owner.UserId, true);
+            ToggleRock(true);
+
+            ToggleMovement(false);
+           // StartCoroutine(StopShootingMode(totalShootTime));
+        }
+    }
+
+    void ToggleRock(bool enabledRock)
+    {
+        if (!pview.IsMine)
+        {
+            inShootingMode = enabledRock;
+        }
+
+        if (enabledRock)
+        {
+            Debug.Log("ENABLE ROCK HERE");
+
+
+            weaponObj.SetActive(true);
+            /* weaponLastPoz = weapons[2].transform.localPosition;
+             weaponLastRot = weapons[2].transform.localRotation;*/
+
+            /* weapons[2].transform.localPosition = weaponStartPosz[2];
+             weapons[2].transform.localRotation = weaponStartRotz[2];*/
+
+            throwableObject.SetActive(true);
+            throwableObject.transform.parent = weaponParent[playerNo].transform;
+        }
+        else
+        {
+            Rigidbody rb = throwableObject.GetComponent<Rigidbody>();
+            rb.isKinematic = true;
+            rb.velocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+            rb.useGravity = false;
+            throwableObject.transform.parent = weaponObj.transform;
+            throwableObject.transform.localPosition = throwableStartPosz;
+            throwableObject.transform.localRotation = throwableStartRotz;
+            throwableObject.SetActive(false);
+        }
+    }
+
+    private void ThrowRock()
+    {
+        shootBulletBtn.interactable = false;
+        //AudioManager.insta.playSound(13);
+        this.transform.rotation = Quaternion.Euler(this.transform.rotation.eulerAngles.x, cam.transform.rotation.eulerAngles.y, this.transform.rotation.eulerAngles.z);
+        myAnim.SetBool("attack", true);
+        StartCoroutine(throwAfterDelay(0.2f));
+
+
+
+    }
+    IEnumerator throwAfterDelay(float delay)
+    {
+
+        yield return new WaitForSeconds(delay);
+        throwableObject.transform.parent = null;
+        Rigidbody rb = throwableObject.GetComponent<Rigidbody>();
+        rb.isKinematic = false;
+        rb.useGravity = true;
+        Debug.DrawLine(throwableObject.transform.position, aimWorldPos, Color.blue, 2f);
+        rb.AddForce(Vector3.up * throwForce / 2 + (aimWorldPos - throwableObject.transform.position).normalized * throwForce, ForceMode.VelocityChange);
+
+
+
+        //StartCoroutine(resetRot(rb.transform.eulerAngles.y, 0.1f));
+        StartCoroutine(waitForThrowReset());
+
+    }
+    IEnumerator waitForThrowReset()
+    {
+        yield return new WaitForSeconds(0.25f);
+        myAnim.SetBool("attack", false);
+
+
+
+        float t = 5f;
+        bool won = false;
+
+
+        while (t > 0)
+        {
+            if (!won)
+            {
+                if (ThrowArea.Instance != null)
+                {
+                    won = ThrowArea.Instance.CheckMiniGame();
+                }
+            }
+            t -= 0.2f;
+            yield return new WaitForSeconds(0.2f);
+            Debug.Log("Test 1");
+        }
+
+        shootBulletBtn.interactable = true;
+        ExitThrowCan(won);
+    }
+    private void ExitThrowCan(bool won)
+    {
+        if (inShootingMode)
+        {
+            Debug.Log(won);
+
+            Cursor.lockState = CursorLockMode.None;
+            tController.isDragging = false;
+            CameraSwitcher.SwitchCamera(MetaManager.insta.playerCam);
+
+            if (won && DatabaseManager.Instance)
+            {
+                LocalData data = DatabaseManager.Instance.GetLocalData();
+                data.score++;
+                DatabaseManager.Instance.GetLocalData();
+                DatabaseManager.Instance.UpdateData(data);
+                UIManager.insta.UpdatePlayerUIData(true, data);
+            }
+
+            AudioManager.insta.playSound(11);
+            MetaManager.isShooting = false;
+
+            shootBulletBtn.gameObject.SetActive(false);
+
+
+            //StartCoroutine(LerpVector_Cam_Offset(new Vector3(1, 0, 0), 0.3f));
+
+            inShootingMode = false;
+            crossHair.SetActive(false);
+            //SendShootAreaCode(pview.Owner.UserId, false);
+            pview.RPC("RPC_ToggleRock", RpcTarget.Others, pview.Owner.UserId, false);
+            ToggleRock(false);
+            Text_shootTimer.gameObject.SetActive(false);
+            Text_shootCounter.gameObject.SetActive(false);
+
+            UIManager.insta.OpenGameCompleteUI(won,1);
+            ThrowArea.Instance.ResetGame();
+        }
+    }
+   
+    public void ToggleMovement(bool enabled)
+    {
+        tController.can_move = enabled;
+    }
     #endregion
     public override void OnPlayerPropertiesUpdate(Player targetPlayer, ExitGames.Client.Photon.Hashtable changedProps)
     {
@@ -694,10 +995,12 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
                 {
                     Debug.Log("User Winner");
                     AudioManager.insta.playSound(6);
-                    SingletonDataManager.userData.fightWon++;
-                    SingletonDataManager.userData.score++;
-                    SingletonDataManager.insta.UpdateUserDatabase();
+                    LocalData data = DatabaseManager.Instance.GetLocalData();
+                    data.gameWon++;
+                    data.score++;
+                    DatabaseManager.Instance.UpdateData(data);
                     UIManager.insta.ShowResult(0);
+                    UIManager.insta.UpdatePlayerUIData(true, data);
                 }
 
 
@@ -789,6 +1092,7 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
                         }
                         SelectWeapon();
                         AudioManager.insta.playSound(4);
+                        virtualWorldUI.SetActive(false);
                     }
                     else
                     {
@@ -817,6 +1121,14 @@ public class MyCharacter : MonoBehaviourPunCallbacks, IOnEventCallback
         if (_uid.Equals(pview.Owner.UserId))
         {
             ToggleGun(enabledGun);
+        }
+    }
+    [PunRPC]
+    public void RPC_ToggleRock(string _uid, bool enabledRock)
+    {
+        if (_uid.Equals(pview.Owner.UserId))
+        {
+            ToggleRock(enabledRock);
         }
     }
 }
