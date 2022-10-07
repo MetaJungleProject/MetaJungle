@@ -154,7 +154,7 @@ public class DatabaseManager : MonoBehaviour
                         if (data.transactionsInformation[i].transactionStatus.Equals("pending"))
                         {
                             Debug.Log("Pending Test 1");
-                            EvmosManager.Instance.CheckDatabaseTransactionStatus(data.transactionsInformation[i].transactionId);
+                            MetaJungleManager.Instance.CheckDatabaseTransactionStatus(data.transactionsInformation[i].transactionId);
                         }
                     }
                 }
@@ -274,7 +274,7 @@ public class DatabaseManager : MonoBehaviour
     async public Task<long> GetCurrentTime()
     {
 
-        string result = await EvmosManager.Instance.CheckTimeStatus();
+        string result = await MetaJungleManager.Instance.CheckTimeStatus();
 
         long currentEpoch;
         if (!string.IsNullOrEmpty(result))

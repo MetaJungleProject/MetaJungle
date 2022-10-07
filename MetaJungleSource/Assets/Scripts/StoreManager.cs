@@ -129,7 +129,7 @@ public class StoreManager : MonoBehaviour
             //meta.itemid = SingletonDataManager.metanftlocalData[currentSelectedItem].
 
             // NFTPurchaser.insta.StartCoroutine(NFTPurchaser.insta.UploadNFTMetadata(Newtonsoft.Json.JsonConvert.SerializeObject(meta), SingletonDataManager.metanftlocalData[currentSelectedItem].cost, SingletonDataManager.metanftlocalData[currentSelectedItem].itemid));
-            EvmosManager.Instance.purchaseItem(currentSelectedItem, false);
+            MetaJungleManager.Instance.purchaseItem(currentSelectedItem, false);
 
 
         }

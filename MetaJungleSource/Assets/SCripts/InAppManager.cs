@@ -32,12 +32,12 @@ public class InAppManager : MonoBehaviour
         insta = this;
         this.gameObject.SetActive(false);
 
-        EvmosManager.Instance.CheckUserBalance();
+        MetaJungleManager.Instance.CheckUserBalance();
     }
 
     private void OnEnable()
     {
-        EvmosManager.Instance.CheckUserBalance();
+        MetaJungleManager.Instance.CheckUserBalance();
     }
 
     public void SelectItem(int _no, Texture _texture)
@@ -54,12 +54,12 @@ public class InAppManager : MonoBehaviour
     }
 
     public void UpdateBalance() {
-        userBalance.text = "Balance : " + EvmosManager.userBalance;
+        userBalance.text = "Balance : " + MetaJungleManager.userBalance;
     }
 
     public void purchaseItem(int index)
     {
-        EvmosManager.Instance.CoinBuyOnSendContract(index);
+        MetaJungleManager.Instance.CoinBuyOnSendContract(index);
     }
 
     public void ClosePurchasePanel()

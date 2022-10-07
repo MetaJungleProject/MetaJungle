@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Networking;
-public class EvmosManager : MonoBehaviour
+public class MetaJungleManager : MonoBehaviour
 {
     #region Singleton
-    public static EvmosManager Instance;
+    public static MetaJungleManager Instance;
     private void Awake()
     {
         if (Instance == null)

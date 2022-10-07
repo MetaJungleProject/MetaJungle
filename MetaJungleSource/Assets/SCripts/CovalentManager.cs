@@ -28,7 +28,7 @@ public class CovalentManager : MonoBehaviour
 
     public void GetNFTUserBalance()
     {
-        if (!loadingData) EvmosManager.Instance.GetNFTList();
+        if (!loadingData) MetaJungleManager.Instance.GetNFTList();
         else Debug.Log("Already loading GetNFTBalance");
     }
   

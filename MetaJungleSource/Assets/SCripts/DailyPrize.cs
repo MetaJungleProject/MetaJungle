@@ -11,7 +11,7 @@ public class DailyPrize : MonoBehaviour
     private void Awake()
     {
         insta = this;
-       EvmosManager.getTokenBalance();
+       MetaJungleManager.getTokenBalance();
         DailyShowUI(false);
     }
 
@@ -22,7 +22,7 @@ public class DailyPrize : MonoBehaviour
 
     public void RedeemToken()
     {
-        EvmosManager.getDailyToken();
+        MetaJungleManager.getDailyToken();
         DailyShowUI(false);
     }
 
@@ -30,7 +30,7 @@ public class DailyPrize : MonoBehaviour
     {
         if (_show)
         {
-            if (EvmosManager.tokenAvailable)
+            if (MetaJungleManager.tokenAvailable)
                 DailyUI.SetActive(true);
         }
         else
@@ -41,7 +41,7 @@ public class DailyPrize : MonoBehaviour
 
     public void UpdateTokenBalance()
     {
-        tokenBalText.text = EvmosManager.tokenBalance;
+        tokenBalText.text = MetaJungleManager.tokenBalance;
     }
 
 
