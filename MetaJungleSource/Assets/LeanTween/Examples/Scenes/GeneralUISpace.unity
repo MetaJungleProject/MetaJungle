@@ -155,7 +155,7 @@ Light:
   m_Intensity: 1
   m_Range: 10
   m_SpotAngle: 30
-  m_InnerSpotAngle: 21.802082
+  m_InnerSpotAngle: 21.80208
   m_CookieSize: 10
   m_Shadows:
     m_Type: 0
@@ -6224,7 +6224,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 8.299988, y: 99.8}
+  m_AnchoredPosition: {x: 8.299988, y: 99.79999}
   m_SizeDelta: {x: 170, y: 170}
   m_Pivot: {x: 1, y: 0.5}
 --- !u!114 &1350658660
@@ -6424,7 +6424,7 @@ Light:
   m_Intensity: 3.32
   m_Range: 10
   m_SpotAngle: 30
-  m_InnerSpotAngle: 21.802082
+  m_InnerSpotAngle: 21.80208
   m_CookieSize: 10
   m_Shadows:
     m_Type: 0
