@@ -36,7 +36,7 @@ public class MetaJungleManager : MonoBehaviour
     const string network = "testnet";
     const string chainId = "80001";
 
-    const string networkRPC = "https://polygontestapi.terminet.io/rpc";
+    const string networkRPC = "https://rpc-mumbai.maticvigil.com";
 
 
 
