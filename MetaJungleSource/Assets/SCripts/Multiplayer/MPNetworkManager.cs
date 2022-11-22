@@ -12,8 +12,8 @@ public class MPNetworkManager : MonoBehaviourPunCallbacks
 
     //public static List<GameObject> _characters = new List<GameObject>();
 
-    [SerializeField] FrostweepGames.WebGLPUNVoice.Recorder rec;
-    [SerializeField] GameObject VoiceObj;
+    //[SerializeField] FrostweepGames.WebGLPUNVoice.Recorder rec;
+   // [SerializeField] GameObject VoiceObj;
 
     private void Awake()
     {
@@ -23,9 +23,9 @@ public class MPNetworkManager : MonoBehaviourPunCallbacks
     private void Start()
     {
         // OnConnectedToServer();
-        VoiceObj.SetActive(true);
-        rec.RefreshMicrophones();
-        rec.reliableTransmission = false;
+        //VoiceObj.SetActive(true);
+       // rec.RefreshMicrophones();
+       // rec.reliableTransmission = false;
     }
 
     #region CommonStuff
@@ -168,7 +168,7 @@ public class MPNetworkManager : MonoBehaviourPunCallbacks
     void StartGameCall()
     {
         NPSpawner.GeneratePlayer();
-        rec.RefreshMicrophones();
+        //rec.RefreshMicrophones();
        // rec.StartRecord();
         //UIManager.insta.MuteUnmute();
         MetaManager.insta.UpdatePlayerWorldProperties();

@@ -1,4 +1,4 @@
-using FrostweepGames.Plugins.Native;
+//using FrostweepGames.Plugins.Native;
 
 using Newtonsoft.Json;
 using System;
@@ -92,8 +92,8 @@ public class SingletonDataManager : MonoBehaviour
 
     void RequestMic()
     {
-        CustomMicrophone.RequestMicrophonePermission();
-        CustomMicrophone.RefreshMicrophoneDevices();
+        //CustomMicrophone.RequestMicrophonePermission();
+       // CustomMicrophone.RefreshMicrophoneDevices();
     }
 
 

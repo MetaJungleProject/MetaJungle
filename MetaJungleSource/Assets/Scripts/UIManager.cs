@@ -35,8 +35,8 @@ public class UIManager : MonoBehaviour
     [SerializeField] TMP_Text lostCountTxt;
     [SerializeField] Slider healthSlider;
 
-    [SerializeField] FrostweepGames.WebGLPUNVoice.Recorder recorder;
-    [SerializeField] FrostweepGames.WebGLPUNVoice.Listener lister;
+    //[SerializeField] FrostweepGames.WebGLPUNVoice.Recorder recorder;
+   // [SerializeField] FrostweepGames.WebGLPUNVoice.Listener lister;
 
 
     [Header("VoiceChat")]
@@ -90,7 +90,7 @@ public class UIManager : MonoBehaviour
             EditUserProfile();
         }
 
-        recorder.StopRecord();
+       // recorder.StopRecord();
     }
 
 
@@ -288,7 +288,7 @@ public class UIManager : MonoBehaviour
 
     public void MuteUnmute()
     {
-        if (recorder.recording)
+       /* if (recorder.recording)
         {
             recorder.recording = false;
             recorderImg.sprite = recorderSprites[1];
@@ -300,12 +300,12 @@ public class UIManager : MonoBehaviour
             recorder.recording = true;
             recorder.StartRecord();
             recorderImg.sprite = recorderSprites[0];
-        }
+        }*/
     }
 
     public void MuteUnmuteListner()
     {
-        if (lister._listening)
+        /*if (lister._listening)
         {
             lister._listening = false;
             listenerImg.sprite = listenerSprites[1];
@@ -314,7 +314,7 @@ public class UIManager : MonoBehaviour
         {
             lister._listening = true;
             listenerImg.sprite = listenerSprites[0];
-        }
+        }*/
     }
 
     public void openMyWorld()
